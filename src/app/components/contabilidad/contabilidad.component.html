@@ -1,0 +1,439 @@
+
+<div class="dashboard-main-wrapper">
+    <div class="dashboard-body">
+        <div class="container">
+            <h1>Contabilidad</h1>
+        </div>
+        <div class="row gy-4">
+            <div class="col-lg-12">
+                <!-- Widgets Start -->
+                <div class="row gy-4">
+                    <div class="col-xxl-3 col-sm-6">
+                        <div class="card">
+                            <div class="card-body">
+                                <h4 class="mb-2">₡{{totalCajaChica | number:'1.2-2'}}</h4>
+                                <span class="text-gray-600">Caja Chica</span>
+                                <div class="flex-between gap-8 mt-16">
+                                    <span class="flex-shrink-0 w-48 h-48 flex-center rounded-circle bg-main-600 text-white text-2xl"><i class="ph-fill ph-book-open"></i></span>
+                                    <div id="complete-course" class="remove-tooltip-title rounded-tooltip-value"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xxl-3 col-sm-6">
+                        <div class="card">
+                            <div class="card-body">
+                                <h4 class="mb-2">₡ {{totalVentas | number:'1.2-2'}}</h4>
+                                <span class="text-gray-600" (click)="global.setRoute('historial-ventas')">Ingresos por ventas</span>
+                                <div class="flex-between gap-8 mt-16">
+                                    <span class="flex-shrink-0 w-48 h-48 flex-center rounded-circle bg-main-two-600 text-white text-2xl"><i class="ph-fill ph-money"></i> </span>
+                                    <div id="earned-certificate" class="remove-tooltip-title rounded-tooltip-value"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xxl-3 col-sm-6">
+                        <div class="card">
+                            <div class="card-body">
+                                <h4 class="mb-2">₡ {{totalCuentasPorPagar | number:'1.2-2'}}</h4>
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <span class="text-gray-600">Cuentas por pagar</span>
+
+                                </div>
+                                <div class="flex-between gap-8 mt-16">
+                                    <span class="flex-shrink-0 w-48 h-48 flex-center rounded-circle bg-purple-600 text-white text-2xl">
+                                        <i class="ph-fill ph-file-arrow-up"></i>
+                                    </span>
+                                    <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#listadoCuentasPorPagar">
+                                        <i class="ph-fill ph-list"></i>
+                                    </button>
+                                    <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#crearCuentaPagarModal">
+                                        <i class="ph-fill ph-plus"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xxl-3 col-sm-6">
+                        <div class="card">
+                            <div class="card-body">
+                                <h4 class="mb-2">₡ {{totalCuentasPorCobrar | number:'1.2-2'}}</h4>
+                                <span class="text-gray-600">Cuentas por cobrar</span>
+                                <div class="flex-between gap-8 mt-16">
+                                    <span class="flex-shrink-0 w-48 h-48 flex-center rounded-circle bg-warning-600 text-white text-2xl">
+                                        <i class="ph-fill ph-file-arrow-down"></i></span>
+                                    <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#listadoCuentasPorCobrar">
+                                        <i class="ph-fill ph-list"></i>
+                                    </button>
+                                    <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#crearCuentaCobrarModal">
+                                        <i class="ph-fill ph-plus"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Widgets End -->
+
+                <!-- Top Course Start -->
+                <div class="card mt-24">
+                    <div class="card-body">
+                        <div class="mb-20 flex-between flex-wrap gap-8">
+                            <h4 class="mb-0">Historial de operaciones</h4>
+                            <div class="flex-align gap-16 flex-wrap">
+                                <div class="flex-align flex-wrap gap-16">
+                                    <div class="flex-align flex-wrap gap-8">
+                                        <span class="w-8 h-8 rounded-circle bg-main-600"></span>
+                                        <span class="text-13 text-gray-600">Ingresos</span>
+                                    </div>
+                                    <div class="flex-align flex-wrap gap-8">
+                                        <span class="w-8 h-8 rounded-circle bg-main-two-600"></span>
+                                        <span class="text-13 text-gray-600">Egresos</span>
+                                    </div>
+                                </div>
+                                <select class="form-select form-control text-13 px-8 pe-24 py-8 rounded-8 w-auto">
+                                    <option value="1">Año</option>
+                                    <option value="1">Mes</option>
+                                    <option value="1">Semana</option>
+                                    <option value="1">Hoy</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div id="doubleLineChart" class="tooltip-style y-value-left"></div>
+                        <div class="card overflow-hidden">
+                            <div class="card-body p-0 overflow-x-auto">
+                                <table id="studentTable" class="table table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th class="fixed-width">
+                                                <div class="form-check">
+                                                    <input class="form-check-input border-gray-200 rounded-4" type="checkbox" id="selectAll">
+                                                </div>
+                                            </th>
+                                            <th class="h6 text-gray-300">Fecha</th>
+                                            <th class="h6 text-gray-300">Descripción</th>
+                                            <th class="h6 text-gray-300">Tipo</th>
+                                            <th class="h6 text-gray-300">Débito</th>
+                                            <th class="h6 text-gray-300">Crédito</th>
+                                            <th class="h6 text-gray-300">Estado</th>
+                                            <th class="h6 text-gray-300">Acciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr *ngFor="let operacion of operaciones">
+                                            <td class="fixed-width">
+                                                <div class="form-check">
+                                                    <input class="form-check-input border-gray-200 rounded-4" type="checkbox">
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <span class="h6 mb-0 fw-medium text-gray-300">{{operacion.fecha | date:'dd/MM/yyyy'}}</span>
+                                            </td>
+                                            <td>
+                                                <div class="flex-align gap-8">
+                                                    <span class="h6 mb-0 fw-medium text-gray-300">
+                                                        {{operacion.tipo === 'pagar' ? operacion.proveedor : operacion.cliente}} - 
+                                                        {{operacion.nota}}
+                                                    </span>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <span class="h6 mb-0 fw-medium text-gray-300">
+                                                    {{operacion.tipo === 'pagar' ? 'Cuenta por Pagar' : 'Cuenta por Cobrar'}}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <span class="h6 mb-0 fw-medium text-danger-600" *ngIf="operacion.tipo === 'pagar'">
+                                                    ₡{{operacion.monto | number:'1.2-2'}}
+                                                </span>
+                                                <span *ngIf="operacion.tipo !== 'pagar'">-</span>
+                                            </td>
+                                            <td>
+                                                <span class="h6 mb-0 fw-medium text-success-600" *ngIf="operacion.tipo === 'cobrar'">
+                                                    ₡{{operacion.monto | number:'1.2-2'}}
+                                                </span>
+                                                <span *ngIf="operacion.tipo !== 'cobrar'">-</span>
+                                            </td>
+                                            <td>
+                                                <span [class]="'text-13 py-2 px-8 d-inline-flex align-items-center gap-8 rounded-pill ' + 
+                                                      (operacion.estado === 'pendiente' ? 'bg-warning-50 text-warning-600' : 'bg-success-50 text-success-600')">
+                                                    <span [class]="'w-6 h-6 rounded-circle flex-shrink-0 ' + 
+                                                          (operacion.estado === 'pendiente' ? 'bg-warning-600' : 'bg-success-600')"></span>
+                                                    {{operacion.estado === 'pendiente' ? 'Pendiente' : 'Completado'}}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <button class="bg-main-50 text-main-600 py-2 px-14 rounded-pill hover-bg-main-600 hover-text-white"
+                                                        (click)="verDetalles(operacion)">
+                                                    Ver Detalles
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="card-footer flex-between flex-wrap">
+                                <span class="text-gray-900">Showing 1 to 10 of 12 entries</span>
+                                <ul class="pagination flex-align flex-wrap">
+                                    <li class="page-item active">
+                                        <a class="page-link h-44 w-44 flex-center text-15 rounded-8 fw-medium" href="students.html#">1</a>
+                                    </li>
+                                    <li class="page-item">
+                                        <a class="page-link h-44 w-44 flex-center text-15 rounded-8 fw-medium" href="students.html#">2</a>
+                                    </li>
+                                    <li class="page-item">
+                                        <a class="page-link h-44 w-44 flex-center text-15 rounded-8 fw-medium" href="students.html#">3</a>
+                                    </li>
+                                    <li class="page-item">
+                                        <a class="page-link h-44 w-44 flex-center text-15 rounded-8 fw-medium" href="students.html#">...</a>
+                                    </li>
+                                    <li class="page-item">
+                                        <a class="page-link h-44 w-44 flex-center text-15 rounded-8 fw-medium" href="students.html#">8</a>
+                                    </li>
+                                    <li class="page-item">
+                                        <a class="page-link h-44 w-44 flex-center text-15 rounded-8 fw-medium" href="students.html#">9</a>
+                                    </li>
+                                    <li class="page-item">
+                                        <a class="page-link h-44 w-44 flex-center text-15 rounded-8 fw-medium" href="students.html#">10</a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Top Course End -->
+
+            </div>
+<!--  -->
+
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="crearCuentaPagarModal" tabindex="-1" aria-labelledby="crearCuentaPagarModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content radius-16 bg-base">
+            <div class="modal-header py-16 px-24 border border-top-0 border-start-0 border-end-0">
+                <h1 class="modal-title fs-5" id="crearCuentaPagarModalLabel">Nueva Cuenta por Pagar</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-24">
+                <form [formGroup]="cuentasxpagar" (ngSubmit)="guardarCuentaPorPagar()">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Proveedor *</label>
+                                <input type="text" 
+                                       class="form-control" 
+                                       formControlName="proveedor"
+                                       [ngClass]="{'is-invalid': cuentasxpagar.get('proveedor')?.invalid && cuentasxpagar.get('proveedor')?.touched}">
+                                <div class="invalid-feedback" *ngIf="cuentasxpagar.get('proveedor')?.errors?.['required']">
+                                    El proveedor es requerido
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Monto *</label>
+                                <input type="number" 
+                                       class="form-control" 
+                                       formControlName="monto"
+                                       [ngClass]="{'is-invalid': cuentasxpagar.get('monto')?.invalid && cuentasxpagar.get('monto')?.touched}">
+                                <div class="invalid-feedback" *ngIf="cuentasxpagar.get('monto')?.errors?.['required']">
+                                    El monto es requerido
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Método de pago *</label>
+                                <select class="form-control" 
+                                        formControlName="metodoPago"
+                                        [ngClass]="{'is-invalid': cuentasxpagar.get('metodoPago')?.invalid && cuentasxpagar.get('metodoPago')?.touched}">
+                                    <option value="">Seleccione un método</option>
+                                    <option value="efectivo">Efectivo</option>
+                                    <option value="tarjeta">Tarjeta</option>
+                                    <option value="simple pago">Simple pago</option>
+                                </select>
+                                <div class="invalid-feedback" *ngIf="cuentasxpagar.get('metodoPago')?.errors?.['required']">
+                                    El método de pago es requerido
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Fecha de vencimiento *</label>
+                                <input type="date" 
+                                       class="form-control" 
+                                       formControlName="fechaVencimiento"
+                                       [ngClass]="{'is-invalid': cuentasxpagar.get('fechaVencimiento')?.invalid && cuentasxpagar.get('fechaVencimiento')?.touched}">
+                                <div class="invalid-feedback" *ngIf="cuentasxpagar.get('fechaVencimiento')?.errors?.['required']">
+                                    La fecha de vencimiento es requerida
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Nota</label>
+                                <textarea class="form-control" 
+                                          formControlName="nota"></textarea>
+                            </div>
+                            
+                        </div>
+                    </div>
+
+                    <div class="d-flex align-items-center justify-content-center gap-8 mt-24">
+                        <button type="button" class="btn bg-danger-600 hover-bg-danger-800 border-danger-600 hover-border-danger-800 text-md px-24 py-12 radius-8" data-bs-dismiss="modal">
+                            Cancelar
+                        </button>
+                        <button type="submit" class="btn bg-primary text-md px-24 py-12 radius-8" [disabled]="!cuentasxpagar.valid">
+                            Guardar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div> 
+<div class="modal fade" id="listadoCuentasPorPagar" tabindex="-1" aria-labelledby="listadoCuentasPorPagarLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content radius-16 bg-base">
+            <div class="modal-header py-16 px-24 border border-top-0 border-start-0 border-end-0">
+                <h1 class="modal-title fs-5" id="listadoCuentasPorPagarLabel">Listado de Cuentas por Pagar</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-24">
+                <table class="table table-striped">
+                    <thead>
+                      <tr>
+                        <th>Proveedor</th>
+                        <th>Monto</th>
+                        <th>Método de Pago</th>
+                        <th>Fecha de Vencimiento</th>
+                        <th>Nota</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                        <ng-container *ngFor="let cuentasxpagar of (realtimeCuentasxpagar.cuentasxpagar$ | async)">
+                            <tr>
+                                <td style="color: black;">{{ cuentasxpagar.proveedor }}</td>
+                                <td style="color: black;">{{ cuentasxpagar.monto }}</td>
+                                <td style="color: black;">{{ cuentasxpagar.metodoPago }}</td>
+                                <td style="color: black;">{{ cuentasxpagar.fechaVencimiento }}</td>
+                                <td style="color: black;">{{ cuentasxpagar.nota }}</td>
+                            </tr>
+                        </ng-container>
+                    </tbody>
+                  </table>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="crearCuentaCobrarModal" tabindex="-1" aria-labelledby="crearCuentaCobrarModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content radius-16 bg-base">
+            <div class="modal-header py-16 px-24 border border-top-0 border-start-0 border-end-0">
+                <h1 class="modal-title fs-5" id="crearCuentaPagarModalLabel">Nueva Cuenta por Pagar</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-24">
+                <form [formGroup]="cuentasxcobrar" (ngSubmit)="guardarCuentaPorCobrar()">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Cliente *</label>
+                                <input type="text" 
+                                       class="form-control" 
+                                       formControlName="cliente"
+                                       [ngClass]="{'is-invalid': cuentasxcobrar.get('cliente')?.invalid && cuentasxcobrar.get('cliente')?.touched}">
+                                <div class="invalid-feedback" *ngIf="cuentasxcobrar.get('cliente')?.errors?.['required']">
+                                    El cliente es requerido
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Monto *</label>
+                                <input type="number" 
+                                       class="form-control" 
+                                       formControlName="monto"
+                                       [ngClass]="{'is-invalid': cuentasxpagar.get('monto')?.invalid && cuentasxpagar.get('monto')?.touched}">
+                                <div class="invalid-feedback" *ngIf="cuentasxpagar.get('monto')?.errors?.['required']">
+                                    El monto es requerido
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Método de pago *</label>
+                                <select class="form-control" 
+                                        formControlName="metodoPago"
+                                        [ngClass]="{'is-invalid': cuentasxcobrar.get('metodoPago')?.invalid && cuentasxcobrar.get('metodoPago')?.touched}">
+                                    <option value="">Seleccione un método</option>
+                                    <option value="efectivo">Efectivo</option>
+                                    <option value="tarjeta">Tarjeta</option>
+                                    <option value="simple pago">Simple pago</option>
+                                </select>
+                                <div class="invalid-feedback" *ngIf="cuentasxcobrar.get('metodoPago')?.errors?.['required']">
+                                    El método de pago es requerido
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Fecha de vencimiento *</label>
+                                <input type="date" 
+                                       class="form-control" 
+                                       formControlName="fechaVencimiento"
+                                       [ngClass]="{'is-invalid': cuentasxcobrar.get('fechaVencimiento')?.invalid && cuentasxcobrar.get('fechaVencimiento')?.touched}">
+                                <div class="invalid-feedback" *ngIf="cuentasxcobrar.get('fechaVencimiento')?.errors?.['required']">
+                                    La fecha de vencimiento es requerida
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Nota</label>
+                                <textarea class="form-control" 
+                                          formControlName="nota"></textarea>
+                            </div>
+                            
+                        </div>
+                    </div>
+
+                    <div class="d-flex align-items-center justify-content-center gap-8 mt-24">
+                        <button type="button" class="btn bg-danger-600 hover-bg-danger-800 border-danger-600 hover-border-danger-800 text-md px-24 py-12 radius-8" data-bs-dismiss="modal">
+                            Cancelar
+                        </button>
+                        <button type="submit" class="btn bg-primary text-md px-24 py-12 radius-8" [disabled]="!cuentasxcobrar.valid">
+                            Guardar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="listadoCuentasPorCobrar" tabindex="-1" aria-labelledby="listadoCuentasPorCobrarLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content radius-16 bg-base">
+            <div class="modal-header py-16 px-24 border border-top-0 border-start-0 border-end-0">
+                <h1 class="modal-title fs-5" id="listadoCuentasPorCobrarLabel">Listado de Cuentas por Cobrar</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-24">
+                <table class="table table-striped">
+                    <thead>
+                      <tr>
+                        <th>Cliente</th>
+                        <th>Monto</th>
+                        <th>Método de Pago</th>
+                        <th>Fecha de Vencimiento</th>
+                        <th>Nota</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                        <ng-container *ngFor="let cuentasxcobrar of (realtimeCuentasxcobrar.cuentasxcobrar$ | async)">
+                            <tr>
+                                <td style="color: black;">{{ cuentasxcobrar.cliente }}</td>
+                                <td style="color: black;">{{ cuentasxcobrar.monto }}</td>
+                                <td style="color: black;">{{ cuentasxcobrar.metodoPago }}</td>
+                                <td style="color: black;">{{ cuentasxcobrar.fechaVencimiento }}</td>
+                                <td style="color: black;">{{ cuentasxcobrar.nota }}</td>
+                            </tr>
+                        </ng-container>
+                    </tbody>
+                  </table>
+            </div>
+        </div>
+    </div>
+</div>

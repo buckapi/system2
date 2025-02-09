@@ -1,0 +1,6 @@
+<div *ngIf="barcodeImage">
+    <img [src]="barcodeImage" alt="Código de Barras">
+  </div>
+  <div *ngIf="!barcodeImage">
+    <p>No se ha generado ningún código de barras.</p>
+  </div>

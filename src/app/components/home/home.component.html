@@ -1,0 +1,354 @@
+<div class="dashboard-main-wrapper">
+
+    
+    <div class="dashboard-body">
+
+        <div class="row gy-4">
+            <div class="col-xxl-8">
+                <div class="card h-100">
+                    <div class="card-body grettings-box-two position-relative z-1 p-0">
+                        <div class="row align-items-center h-100">
+                            <div class="col-lg-6">
+                                <div class="grettings-box-two__content">
+                                    <h2 class="fw-medium mb-0 flex-align gap-10">Bienvenidos  a la plataforma de ventas <img src="assets/images/icons/wave-hand.png" alt=""> </h2>
+                                    <p>Sistema de inventario y ventas</p></div>
+                            </div>
+                            <div class="col-lg-6 d-md-block d-none mt-auto">
+                                <img src="assets/images/thumbs/gretting-thumb.png" alt="">
+                            </div>
+                        </div>
+                        <img src="assets/images/bg/star-shape.png" class="position-absolute start-0 top-0 w-100 h-100 z-n1 object-fit-contain" alt="">
+                    </div>
+                </div>
+            </div>
+            <div class="col-xxl-4 col-xs-6">
+                <!-- Widgets Start -->
+                <div class="row gy-4">
+                    <div class="col-6">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="flex-between gap-8 mb-24">
+                                    <span class="flex-shrink-0 w-48 h-48 flex-center rounded-circle bg-main-600 text-white text-2xl"><i class="ph-fill ph-bookmarks"></i></span>
+                                    <div id="complete-course" class="remove-tooltip-title rounded-tooltip-value"></div>
+                                </div>
+                                <h4 class="mb-2">
+                                <ng-container *ngIf="products !== undefined; else loading">
+                                    {{products.length}}
+                                </ng-container>
+                                <ng-template #loading>
+                                    <span>Cargando...</span>
+                                </ng-template>
+                                <span class="text-gray-300" (click)="global.setRoute('products')" style="cursor: pointer;">Productos</span>
+                                </h4>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6 ">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="flex-between gap-8 mb-24">
+                                    <span class="flex-shrink-0 w-48 h-48 flex-center rounded-circle bg-main-two-600 text-white text-2xl"><i class="ph-fill ph-users-four"></i></span>
+                                    <div id="earned-certificate" class="remove-tooltip-title rounded-tooltip-value"></div>
+                                </div>
+                                
+                                <!-- <h4 class="mb-2"></h4>
+                                <span class="text-gray-300">Empleados</span> -->
+                                <h4 class="mb-2">
+                                    <ng-container *ngIf="employees !== undefined; else loading">
+                                        {{employees.length}}
+                                    </ng-container>
+                                    <ng-template #loading>
+                                        <span>Cargando...</span>
+                                    </ng-template>
+                                    <span class="text-gray-300" (click)="global.setRoute('employees')" style="cursor: pointer;">Empleados</span>
+                                </h4>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6 ">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="flex-between gap-8 mb-24">
+                                    <span class="flex-shrink-0 w-48 h-48 flex-center rounded-circle bg-purple-600 text-white text-2xl"><i class="ph-fill ph-certificate"></i></span>
+                                    <div id="course-progress" class="remove-tooltip-title rounded-tooltip-value"></div>
+                                </div>
+                                <h4 class="mb-2">
+                                    <ng-container *ngIf="ventas !== undefined; else loading">
+                                        {{ventas.length}}
+                                    </ng-container>
+                                    <ng-template #loading>
+                                        <span>Cargando...</span>
+                                    </ng-template>
+                                    <span class="text-gray-300" (click)="global.setRoute('cash')" style="cursor: pointer;">Ventas</span>
+                                    </h4>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6 ">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="flex-between gap-8 mb-24">
+                                    <span class="flex-shrink-0 w-48 h-48 flex-center rounded-circle bg-warning-600 text-white text-2xl"><i class="ph-fill ph-money"></i></span>
+                                    <div id="community-support" class="remove-tooltip-title rounded-tooltip-value"></div>
+                                </div>
+                                
+                                <h4 class="mb-2">
+                                    <ng-container *ngIf="totalIngresos !== undefined; else loading">
+                                        {{totalIngresos | number:'1.2-2'}}
+                                    </ng-container>
+                                    <ng-template #loading>
+                                        <span>Cargando...</span>
+                                    </ng-template>
+                                    <span class="text-gray-300" (click)="global.setRoute('contabilidad')" style="cursor: pointer;">Ingresos</span>
+                                    </h4>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Widgets End -->
+            </div>
+        </div>
+        
+        
+        <div class="mt-24">
+            <div class="row gy-4">
+
+                <div class="col-xxl-6">
+                    <!-- Top Course Start -->
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <div class="mb-20 flex-between flex-wrap gap-8">
+                                <h4 class="mb-0">Ventas diarias</h4>
+                                <div class="flex-align gap-16 flex-wrap">
+                                    <div class="flex-align flex-wrap gap-16">
+                                        <div class="flex-align flex-wrap gap-8">
+                                            <span class="w-8 h-8 rounded-circle bg-main-600"></span>
+                                            <span class="text-13 text-gray-600">Ventas</span>
+                                        </div>
+                                        <div class="flex-align flex-wrap gap-8">
+                                            <span class="w-8 h-8 rounded-circle bg-main-two-600"></span>
+                                            <span class="text-13 text-gray-600">Ingresos</span>
+                                        </div>
+                                    </div>
+                                    <select class="form-select form-control text-13 px-8 pe-24 py-8 rounded-8 w-auto">
+                                        <option value="1">Año</option>
+                                        <option value="1">Mes</option>
+                                        <option value="1">Semana</option>
+                                        <option value="1">Hoy</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div id="doubleLineChart" class="tooltip-style y-value-left"></div>
+                                <div class="table-responsive mt-2">
+                                    <table class="table table-sm">
+                                        <thead>
+                                            <tr>
+                                                <th>Fecha</th>
+                                                <!-- <th>Empleado</th> -->
+                                                <th>Cliente</th>
+                                                <th>Producto</th>
+                                                <th>Total</th>
+                                                <th>Acciones</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <ng-container *ngFor="let venta of (realtimeVentas.ventas$ | async)">
+                                                <tr>
+                                                    <td>{{venta.date | date:'short'}}</td>  
+                                                     <td>{{venta.customer}}</td>
+                                                     <td>{{venta.idProduct && venta.idProduct.length > 0 ? venta.idProduct[0].name : ''}}</td>                                                     
+                                                     <td>₡ {{venta.total | number:'1.2-2'}}</td>                                      
+                                                    <td>
+                                                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#openSaleDetailsModal" (click)="openSaleDetailsModal(venta)">Ver</button>
+                                                    </td>
+                                                </tr>
+                                            </ng-container>
+                                            <ng-template #loadingSales>
+                                                <tr>
+                                                    <td colspan="3" class="text-center">Cargando ventas...</td>
+                                                </tr>
+                                            </ng-template>
+                                        </tbody>
+                                    </table>
+                                </div>
+                        </div>
+                    </div>
+                    <!-- Top Course End -->
+                </div>
+                
+                <div class="col-xxl-3 col-sm-6">
+                    <!-- Progress Bar Start -->
+                    <div class="card h-100">
+                        <div class="card-header border-bottom border-gray-100 flex-between flex-wrap gap-8">
+                            <h5 class="mb-0">Stock</h5>
+                            <div class="dropdown flex-shrink-0">
+                                <button class="text-gray-400 text-xl d-flex rounded-4" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="ph-fill ph-dots-three-outline"></i>
+                                </button>
+                                <div class="dropdown-menu dropdown-menu--md border-0 bg-transparent p-0">
+                                    <div class="card border border-gray-100 rounded-12 box-shadow-custom">
+                                        <div class="card-body p-12">
+                                            <div class="max-h-200 overflow-y-auto scroll-sm pe-8">
+                                                <ul>
+                                                    <li class="mb-0">
+                                                        <a (click)="global.setRoute('products')" class="py-6 text-15 px-8 hover-bg-gray-50 text-gray-300 w-100 rounded-8 fw-normal text-xs d-block text-start">
+                                                            <span class="text"> <i class="ph ph-boxes"></i> Ir a Inventario</span>
+                                                        </a>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body">
+
+                           <div class="">
+                                <span class="text-gray-200 text-lg mb-12 mt-10 d-block text-center">Total Stock</span>
+                                <h1 class="text-48 fw-medium mb-12 text-center">
+                                    <ng-container *ngIf="products !== undefined; else loading">
+                                        {{calculateTotalStock()}}
+                                    </ng-container>
+                                    <ng-template #loading>
+                                        <span>Cargando...</span>
+                                    </ng-template>
+                                </h1>
+                                <div class="flex-between flex-wrap">
+                                    <div class="d-flex gap-8 mt-12 flex-column w-50-perc pe-8">
+                                        <div class="progress w-100 bg-main-100 rounded-pill h-4" role="progressbar" aria-label="Basic example" aria-valuenow="32" aria-valuemin="0" aria-valuemax="100">
+                                            <div class="progress-bar bg-main-600 rounded-pill" style="width: 32%"></div>
+                                        </div>
+                                        <span class="text-neutral-600 flex-shrink-0 text-13 fw-medium">{{totalStock}}</span>
+                                    </div>
+                                    <div class="d-flex gap-8 mt-12 flex-column w-50-perc ps-8">
+                                        <div class="progress w-100 bg-main-two-100 rounded-pill h-4" role="progressbar" aria-label="Basic example" aria-valuenow="80" aria-valuemin="0" aria-valuemax="100">
+                                            <div class="progress-bar bg-main-two-600 rounded-pill" style="width: 80%"></div>
+                                        </div>
+                                        <span class="text-neutral-600 flex-shrink-0 text-13 fw-medium">{{totalStock}}</span>
+                                    </div>
+                                </div>
+                           </div>
+                        </div>
+                    </div>
+                    <!-- Progress bar end -->
+                </div>
+
+                <div class="col-xxl-3 col-sm-6">
+                    <!-- Donut Chart Start -->
+                    <div class="card h-100">
+                        <div class="card-header border-bottom border-gray-100 flex-between gap-8 flex-wrap">
+                            <h5 class="mb-0">Productos más vendidos</h5>
+                            <div class="dropdown flex-shrink-0">
+                                <button class="text-gray-400 text-xl d-flex rounded-4" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="ph-fill ph-dots-three-outline"></i>
+                                </button>
+                                <div class="dropdown-menu dropdown-menu--md border-0 bg-transparent p-0">
+                                    <div class="card border border-gray-100 rounded-12 box-shadow-custom">
+                                        <div class="card-body p-12">
+                                            <div class="max-h-200 overflow-y-auto scroll-sm pe-8">
+                                                <ul>
+                                                    <li class="mb-0">
+                                                        <a (click)="global.setRoute('cash')" class="py-6 text-15 px-8 hover-bg-gray-50 text-gray-300 w-100 rounded-8 fw-normal text-xs d-block text-start">
+                                                            <span class="text"> <i class="ph ph-user me-4"></i> Ir a Ventas</span>
+                                                        </a>
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="flex-center mb-20">
+                                <div id="activityDonutChart" class="w-auto d-inline-block"></div>
+                            </div>
+
+                            <div class="flex-between gap-8 flex-wrap mt-20">
+                                <div class="flex-align flex-column">
+                                    <span class="w-12 h-12 bg-white border border-3 border-main-600 rounded-circle"></span>
+                                    <span class="text-13 my-4 text-main-600">Mentoring</span>
+                                    <h6 class="mb-0">65.2%</h6>
+                                </div>
+                                <div class="flex-align flex-column">
+                                    <span class="w-12 h-12 bg-white border border-3 border-main-two-600 rounded-circle"></span>
+                                    <span class="text-13 my-4 text-main-two-600">Organization</span>
+                                    <h6 class="mb-0">25.0%</h6>
+                                </div>
+                                <div class="flex-align flex-column">
+                                    <span class="w-12 h-12 bg-white border border-3 border-danger-600 rounded-circle"></span>
+                                    <span class="text-13 my-4 text-danger-600">Planning</span>
+                                    <h6 class="mb-0">9.8%</h6>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Donut Chart End -->
+                </div>
+
+            </div>
+        </div>
+    </div>
+   
+</div>
+
+<div class="modal fade" id="openSaleDetailsModal" tabindex="-1" aria-labelledby="openSaleDetailsModalLabel" aria-hidden="true" *ngIf="selectedSale">
+    <div class="modal-dialog modal-lg modal-dialog modal-dialog-centered">
+        <div class="modal-content radius-16 bg-base">
+            <div class="modal-header py-16 px-24 border border-top-0 border-start-0 border-end-0">
+                <h1 class="modal-title fs-5" id="exampleModalLabel">Detalles de la Venta</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-24" *ngIf="selectedSale">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <p><strong>Fecha:</strong> {{selectedSale.date | date:'short'}}</p>
+                        <p><strong>Cliente:</strong> {{selectedSale.customer || 'No especificado'}}</p>
+                        <p><strong>Empleado:</strong> {{selectedSale.Iduser?.name || 'No especificado'}}</p>
+                    </div>
+                    <div class="col-md-6 text-end">
+                        <p><strong>Total:</strong> ₡ {{selectedSale.total | number:'1.2-2'}}</p>
+                    </div>
+                </div>
+
+                <h6 class="mt-4">Productos</h6>
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Producto</th>
+                                <th>Cant.</th>
+                                <th>Precio/Unidad</th>
+                                <th>Total</th>
+                            </tr>
+                        </thead>
+                        <!-- <tbody>
+                            <tr *ngFor="let venta of (realtimeVentas.ventas$ | async) || []">
+                                <td>{{venta.idProduct && venta.idProduct.length > 0 ? venta.idProduct[0].name : ''}}</td>
+                                <td>{{venta.unity}}</td>
+                                <td>${{venta.idProduct[0].price | number:'1.2-2'}}</td>
+                                <td>₡ {{venta.total | number:'1.2-2'}}</td>
+                            </tr>
+                        </tbody> -->
+                        <tbody>
+                            <tr *ngFor="let product of selectedSale.idProduct">
+                                <td>{{product.name}}</td>
+                                <td>{{selectedSale.unity}}</td>
+                                <td>₡ {{product.price | number:'1.2-2'}}</td>
+                                <td>₡ {{selectedSale.total | number:'1.2-2'}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="d-flex align-items-center justify-content-center gap-8 mt-24">
+                    <button type="button" class="btn bg-danger-600 hover-bg-danger-800 border-danger-600 hover-border-danger-800 text-md px-24 py-12 radius-8" data-bs-dismiss="modal"> 
+                        Cerrar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

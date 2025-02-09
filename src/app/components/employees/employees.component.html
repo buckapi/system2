@@ -1,0 +1,100 @@
+<div class="dashboard-main-wrapper">
+    <div class="card mt-24">        
+      <div class="card-body">
+        <div class="breadcrumb mb-24">
+            <ul class="flex-align gap-4">
+                <li><a (click)="global.setRoute('home')" style="cursor: pointer;" class="text-gray-200 fw-normal text-15 hover-text-main-600">Inicio</a></li>
+                <li> <span class="text-gray-500 fw-normal d-flex"><i class="ph ph-caret-right"></i></span> </li>
+                <li><span class="text-main-600 fw-normal text-15">Empleados</span></li>
+            </ul>
+        </div>
+        <!-- Header y botón de agregar -->
+        <div class="d-flex align-items-center justify-content-between">
+          <h4 [hidden]="showForm" class="mb-20">Empleados</h4>
+          <button 
+            *ngIf="!showForm"
+            (click)="showNewEmployee()"
+            type="button"
+            class="btn btn-main text-sm btn-sm px-24 rounded-pill py-12 d-flex align-items-center gap-2">
+            <i class="ph ph-plus me-4"></i>
+            Agregar Empleado
+          </button>
+        </div>
+  
+        <!-- Tarjetas de tecnicos -->
+        <div class="row g-20 pt-24" [hidden]="showForm">
+          <div class="col-xl-3 col-md-4 col-sm-6" *ngFor="let employee of (realtimeEmployees.employees$ | async)">
+            <div class="mentor-card rounded-8 overflow-hidden">
+              <div class="mentor-card__cover position-relative" style="background-color: black;">
+              <!--   <img src="assets/images/thumbs/mentor-cover-img1.png" alt="" class="cover-img"> -->
+                <button type="button" class="follow-btn py-2 px-8 flex-align gap-4 text-13 fw-medium text-white border border-white rounded-pill 
+                position-absolute inset-block-start-0 inset-inline-end-0 mt-8 me-8 transition-1" (click)="deleteEmployee(employee.id)"> 
+                  <i class="ph ph-trash d-flex"></i> 
+                  <span class="text">Eliminar</span>
+                </button>
+              </div>
+              <div class="mentor-card__content text-center">
+                <div class="w-56 h-56 rounded-circle overflow-hidden border border-white d-inline-block">
+                  <a >
+                    <img src="assets/images/thumbs/mentor-img1.png" alt="" class="mentor-card__img cover-img">
+                  </a>
+                </div>
+                <h5 class="mb-0">
+                  <a >{{ employee.name }}</a>
+                </h5>
+                <span class="text-13 text-gray-500">{{ employee.role }}</span>
+                <div class="mentor-card__rating mt-20 border border-gray-100 px-8 py-6 rounded-8 flex-between flex-wrap">
+                  <div class="flex-align gap-4">
+                    <span class="text-15 fw-normal text-main-600 d-flex"><i class="ph-fill ph-envelope"></i></span>
+                    <span class="text-13 fw-normal text-gray-600">{{ employee.email }} </span>
+                  </div>
+                  <div class="flex-align gap-4">
+                    <span class="text-15 fw-normal text-warning-600 d-flex"><i class="ph-fill ph-phone"></i></span>
+                    <span class="text-13 fw-normal text-gray-600">{{ employee.phone }} </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+  
+        <!-- Formulario de Nuevo Supervisor -->
+        <div class="card mt-24" [hidden]="!showForm">
+          <div class="card-header border-bottom">
+            <h4 class="mb-4">Nuevo Empleado</h4>
+            <p class="text-gray-600 text-15">Complete todos los datos del empleado</p>
+          </div>
+          <div class="card-body">
+            <form [formGroup]="employeeForm" (ngSubmit)="addNewEmployee()">
+              <div class="row gy-4">
+                <div class="col-sm-6 col-xs-6">
+                  <label for="fname" class="form-label mb-8 h6">Nombres</label>
+                  <input formControlName="fname" type="text" class="form-control py-11" id="fname" placeholder="Ingrese Nombres">
+                </div>
+                
+                <div class="col-sm-6 col-xs-6">
+                  <label for="email" class="form-label mb-8 h6">Email</label>
+                  <input formControlName="email" type="email" class="form-control py-11" id="email" placeholder="Ingrese Email">
+                </div>
+                
+                <div class="col-sm-6 col-xs-6">
+                  <label for="phone" class="form-label mb-8 h6">Teléfono</label>
+                  <input formControlName="phone" type="number" class="form-control py-11" id="phone" placeholder="Ingrese Teléfono">
+                </div>
+                
+                
+            
+                <div class="col-12">
+                  <div class="flex-align justify-content-end gap-8">
+                    <button type="button" (click)="showForm=false" class="btn btn-outline-main bg-main-100 border-main-100 text-main-600 rounded-pill py-9">Cancel</button>
+                    <button type="submit" class="btn btn-main rounded-pill py-9">Agregar empleado</button>
+                  </div>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  

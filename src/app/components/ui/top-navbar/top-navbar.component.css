@@ -1,0 +1,11 @@
+.sidebar-menu-wrapper {
+    transition: transform 0.3s ease;
+}
+
+.sidebar-menu-wrapper.d-none {
+    transform: translateX(-100%); /* Ocultar el menú */
+}
+
+.sidebar-menu-wrapper.d-block {
+    transform: translateX(0); /* Mostrar el menú */
+}

@@ -1,0 +1,27 @@
+:host {
+    display: block;
+    padding: 24px;
+    min-width: 400px;
+  }
+  
+  .modal-title {
+    margin-bottom: 16px;
+  }
+  
+  .modal-form {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .modal-content {
+    margin-bottom: 16px;
+  }
+  
+  .full-width {
+    width: 100%;
+  }
+  
+  .modal-actions {
+    gap: 8px;
+    padding: 8px 0;
+  }
