@@ -12,18 +12,9 @@ import { UploadService } from '../../services/upload.service';
 import { from } from 'rxjs';
 import QRCode from 'qrcode';
 import PocketBase from 'pocketbase';
-import { formatDate } from '@angular/common';  // Para formatear fechas
-import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
-
 export interface PocketBaseError {
   message: string;
-  code: number;
-}
-interface PocketBaseResponse {
-  items: any[]; // O el tipo de elementos que recibes en la respuesta
-  totalItems: number; // Si tu respuesta tiene una propiedad de este tipo
-  // Otras propiedades que puedas necesitar según la respuesta de la API
+  // otras propiedades que puedas necesitar
 }
 export interface VentaInterface {
   id: string;
@@ -44,23 +35,6 @@ export interface VentaInterface {
     subtotal: number;
   }[];
 }
-
-interface Venta {
-  customer: string;
-  total: number;
-  date: string;
-  turno?: string;
-}
-
-interface CierreCaja {
-  customer: string;
-  total: number;
-  date: string;
-  turno: string;
-  hora: string;
-  idUser: string;
-}
-
 declare var bootstrap: any;
 
 @Component({
@@ -106,13 +80,6 @@ export class CashComponent {
   products: any[] = [];
   ventas: any[] = [];
   filteredProducts: any[] = [];
-  cierresCajaMañana: any[] = [];  
-  cierresCajaTarde: any[] = [];
-  ventasDelDiaMañana: any[] = [];
-  ventasDelDiaTarde: any[] = [];
-  ventasDelDiaManana: any[] = [];
-  turnoSeleccionado: string = 'Mañana'; // Puedes asignar un valor por defecto o modificarlo según tu lógica
-   ventasDelDia: VentaInterface[] = []; // Aquí almacenas las ventas
 
   constructor
   (public global: GlobalService,
@@ -130,10 +97,8 @@ export class CashComponent {
     this.pb = this.authPocketbase.getCurrentUser();
     this.authStore = this.pb?.authStore;
     this.totalStock = this.calculateTotalStock();
-    
   
   }
-
   calculateTotalStock(): number {
     return this.products.reduce((total, product) => total + (product.quantity || 0), 0);
   }
@@ -158,48 +123,7 @@ export class CashComponent {
           this.totalVentasDelDia = ventas.reduce((total, venta) => total + (venta.total || 0), 0);
       }
     });
-    this.obtenerVentasDelDia();
-
   }
-  /* obtenerVentasDelDia() {
-    const today = new Date().toISOString().split('T')[0]; // Obtener la fecha de hoy en formato YYYY-MM-DD
-    
-    this.pb.collection('ventas').getList(1, 100, {
-      filter: `date >= "${today}T00:00:00Z" AND date <= "${today}T23:59:59Z"`, // Filtrar por fecha
-    }).then((result: PocketBaseResponse) => {  // Definir el tipo para result
-      // Filtrar por turno (mañana o tarde)
-      this.ventasDelDiaMañana = result.items.filter((venta: Venta) => new Date(venta.date).getHours() < 12); // Filtrar ventas de la mañana
-      this.ventasDelDiaTarde = result.items.filter((venta: Venta) => new Date(venta.date).getHours() >= 12); // Filtrar ventas de la tarde
-    }).catch((error: PocketBaseError) => {  // Definir el tipo para error
-      console.error('Error al obtener las ventas del día:', error.message); // Usar error.message para obtener el mensaje de error
-    });
-  } */
-
-  obtenerCierresCaja() {
-    const today = new Date().toISOString().split('T')[0]; // Obtener la fecha de hoy en formato YYYY-MM-DD
-    
-    this.pb.collection('cierresCaja').getList(1, 100, {
-      filter: `date >= "${today}T00:00:00Z" AND date <= "${today}T23:59:59Z"`, // Filtrar por fecha
-    }).then((result: PocketBaseResponse) => {  // Definir el tipo para result
-      // Filtrar cierres por turno (mañana o tarde)
-      this.cierresCajaMañana = result.items.filter((cierre: CierreCaja) => cierre.turno === 'Mañana');
-      this.cierresCajaTarde = result.items.filter((cierre: CierreCaja) => cierre.turno === 'Tarde');
-    }).catch((error: PocketBaseError) => {  // Definir el tipo para error
-      console.error('Error al obtener los cierres de caja:', error.message);
-    });
-  }
-  getVentasDelDia(): VentaInterface[] {
-    const today = new Date();
-    const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-    const todayEnd = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1);
-
-    // Filtrar solo las ventas del día
-    return this.ventasDelDia.filter(venta => {
-      const ventaDate = new Date(venta.date);
-      return ventaDate >= todayStart && ventaDate < todayEnd;
-    });
-  }
-  
   getQrCodeUrl(record: any): string {
     const fileName = record['qrCodeFileName'] || 'default.png'; // Usa un valor por defecto si es necesario
     const fileId = record['qrCodeId'] || 'defaultId'; // Usa un valor por defecto si es necesario
@@ -357,7 +281,7 @@ filtrarProductos(termino: string) {
       const baseUrl = 'https://db.buckapi.com:8095/api/files/';
       return `${baseUrl}${imageName}?token=YOUR_TOKEN_HERE`; // Asegúrate de reemplazar con el token correcto
   }
-     /*  procesarPago() {
+      procesarPago() {
         if (!this.metodoPago || !this.customer) {
           Swal.fire({
             title: 'Error',
@@ -408,7 +332,6 @@ filtrarProductos(termino: string) {
               });
               this.resetearVenta();
               this.irAPaso(1);
-              
             }).catch((error: any) => { // Especifica el tipo de error
               Swal.fire({
                 title: 'Error',
@@ -464,293 +387,9 @@ processSaleWithQRCode(venta: any): Promise<void> {
       reject(error); // Rechaza la promesa en caso de error
     });
   });
-} */
-  processSaleWithQRCode(venta: any): Promise<void> {
-    return new Promise((resolve, reject) => {
-      const pb = new PocketBase('https://db.buckapi.com:8095');
-  
-      QRCode.toDataURL(`venta-${venta.id}`).then((qrCodeUrl) => {
-        const byteCharacters = atob(qrCodeUrl.split(',')[1]);
-        const byteArrays = [];
-        for (let offset = 0; offset < byteCharacters.length; offset++) {
-          const byte = byteCharacters.charCodeAt(offset);
-          byteArrays.push(byte);
-        }
-        const blob = new Blob([new Uint8Array(byteArrays)], { type: 'image/png' });
-        const file = new File([blob], `venta-${venta.id}.png`, { type: 'image/png' });
-  
-        const ventaData = {
-          customer: venta.customer,
-          total: venta.total,
-          unity: venta.unity,
-          subTotal: venta.subTotal,
-          statusVenta: venta.statusVenta,
-          descuento: venta.descuento,
-          iva: venta.iva,
-          metodoPago: venta.metodoPago,
-          date: venta.date,
-          hora: venta.hora,
-          idProduct: venta.idProduct,
-          idUser: venta.idUser,
-          qrCode: file, // El archivo QR
-        };
-        pb.collection('ventas').create(ventaData).then((record) => {
-          console.log('Venta guardada exitosamente:', record);
-          resolve(); // Resuelve la promesa
-        }).catch((error) => {
-          console.error('Error al guardar la venta:', error);
-          reject(error); // Rechaza la promesa en caso de error
-        });
-      }).catch((error) => {
-        console.error('Error generando el código QR:', error);
-        reject(error); // Rechaza la promesa en caso de error
-      });
-    });
-  }
-  procesarPago() {
-    if (!this.metodoPago || !this.customer) {
-      Swal.fire({
-        title: 'Error',
-        text: 'Por favor complete todos los campos requeridos',
-        icon: 'error',
-        confirmButtonText: 'Ok'
-      });
-      return;
-    }
-    
-    Swal.fire({
-      title: '¿Está seguro de procesar la venta?',
-      text: `Total a pagar: ₡${this.total.toFixed(2)}`,
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#3085d6',
-      cancelButtonColor: '#d33',
-      confirmButtonText: 'Sí, procesar',
-      cancelButtonText: 'Cancelar'
-    }).then((result) => {
-      if (result.isConfirmed) {
-        const venta = {
-          customer: this.customer,
-          paymentMethod: this.metodoPago,
-          products: this.productosSeleccionados,
-          total: this.total,
-          idUser: this.currentUser.id,
-          unity: this.calculateTotalUnits(),
-          subTotal: this.subtotal.toString(),
-          iva: this.iva.toString(),
-          statusVenta: "completed",
-          descuento: "0",
-          metodoPago: this.metodoPago,
-          date: new Date().toISOString(),
-          hora: this.horaActual,
-          idProduct: JSON.stringify(this.productosSeleccionados),
-        };
-
-        // Llama a la función para procesar la venta y generar el código QR
-        this.processSaleWithQRCode(venta).then(() => {
-          // Aquí puedes refrescar la vista o realizar cualquier acción necesaria
-          Swal.fire({
-            title: '¡Venta exitosa!',
-            text: 'La venta ha sido procesada correctamente.',
-            icon: 'success',
-            confirmButtonText: 'Ok'
-          });
-          this.resetearVenta();
-          this.irAPaso(1);
-          // Llamar a la función de cierre de caja
-          this.cerrarCaja();
-        }).catch((error: any) => { // Especifica el tipo de error
-          Swal.fire({
-            title: 'Error',
-            text: 'Hubo un problema al procesar la venta. Por favor, intente nuevamente.',
-            icon: 'error',
-            confirmButtonText: 'Ok'
-          });
-        });
-      }
-    });
-  }
-
-  cerrarCaja() {
-    const currentHour = new Date().getHours();
-    const turno = currentHour < 12 ? 'Mañana' : 'Tarde';
-
-    // Validar que totalVentasDelDia y currentUser.id estén definidos
-    if (this.totalVentasDelDia <= 0) {
-      Swal.fire({
-        icon: 'warning',
-        title: 'Advertencia',
-        text: 'No hay ventas registradas para cerrar la caja.'
-      });
-      return;
-    }
-
-    if (!this.currentUser || !this.currentUser.id) {
-      Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: 'Usuario no identificado. No se puede registrar el cierre de caja.'
-      });
-      return;
-    }
-
-    const cierreData = {
-      customer: "Cierre de caja",
-      total: this.totalVentasDelDia,
-      date: new Date().toISOString(),
-      hora: new Date().toLocaleTimeString(),
-      turno: turno,
-      idProduct: JSON.stringify(this.productosSeleccionados.map(venta => venta.idProduct)),
-      idUser: this.currentUser.id,
-    };
-
-    this.pb.collection('cierresCaja').create(cierreData)
-      .then(() => {
-        console.log('Cierre de caja registrado exitosamente.');
-        this.productosSeleccionados = [];
-        this.totalVentasDelDia = 0;
-        Swal.fire({
-          icon: 'success',
-          title: 'Cierre de Caja',
-          text: `El cierre de caja para el turno ${turno} se ha realizado exitosamente.`
-        });
-      })
-      .catch((error: PocketBaseError) => {
-        console.error('Error al registrar el cierre de caja:', error.message);
-        Swal.fire({
-          icon: 'error',
-          title: 'Error',
-          text: 'No se pudo registrar el cierre de caja. Por favor, intente nuevamente.'
-        });
-      });
-  }
-
-  obtenerVentasDelDia() {
-    const today = new Date().toISOString().split('T')[0]; // Obtener la fecha de hoy en formato YYYY-MM-DD
-    
-    this.pb.collection('ventas').getList(1, 100, {
-      filter: `date >= \"${today}T00:00:00.000Z\" AND date <= \"${today}T23:59:59.999Z\"`,
-    }).then((result: PocketBaseResponse) => {
-      this.ventasDelDia = result.items;
-    }).catch((error: PocketBaseError) => {
-      console.error('Error al obtener las ventas del dia:', error.message);
-    });
-  }
-
-registrarVenta(venta: VentaInterface): void {
-  // Aquí registras la venta normalmente
-  // Ejemplo: this.ventas.push(venta);
-
-  // Asignar la venta al cierre de caja correspondiente según el turno (mañana o tarde)
-  const currentDate = new Date();
-  const turno = currentDate.getHours() < 14 ? 'Mañana' : 'Tarde';  // Asumiendo que el turno de mañana es antes de las 14h
-
-  // Actualizar los cierres de caja
-  if (turno === 'Mañana') {
-    this.cierresCajaMañana.push({
-      ...venta,
-      turno: 'Mañana',
-      hora: formatDate(currentDate, 'HH:mm', 'en-US'),
-      idUser: this.currentUser.id  // Añadir el id del usuario, si corresponde
-    });
-  } else {
-    this.cierresCajaTarde.push({
-      ...venta,
-      turno: 'Tarde',
-      hora: formatDate(currentDate, 'HH:mm', 'en-US'),
-      idUser: this.currentUser.id  // Añadir el id del usuario, si corresponde
-    });
-  }
-
-  // Ahora realiza el cierre de caja o lo que sea necesario para mantener el control de la caja.
 }
-/* cerrarCaja() {
-  const currentHour = new Date().getHours();
-  const turno = currentHour < 12 ? 'Mañana' : 'Tarde';
-
-  // Validar que totalVentasDelDia y currentUser.id estén definidos
-  if (this.totalVentasDelDia <= 0) {
-    Swal.fire({
-      icon: 'warning',
-      title: 'Advertencia',
-      text: 'No hay ventas registradas para cerrar la caja.'
-    });
-    return;
-  }
-
-  if (!this.currentUser || !this.currentUser.id) {
-    Swal.fire({
-      icon: 'error',
-      title: 'Error',
-      text: 'Usuario no identificado. No se puede registrar el cierre de caja.'
-    });
-    return;
-  }
-
-  const cierreData = {
-    customer: "Cierre de caja",
-    total: this.totalVentasDelDia,
-    date: new Date().toISOString(),
-    hora: new Date().toLocaleTimeString(),
-    turno: turno,
-    idProduct: JSON.stringify(this.productosSeleccionados.map(venta => venta.idProduct)),
-    idUser: this.currentUser.id,
-  };
-
-  this.pb.collection('cierresCaja').create(cierreData)
-    .then(() => {
-      console.log('Cierre de caja registrado exitosamente.');
-      this.productosSeleccionados = [];
-      this.totalVentasDelDia = 0;
-      Swal.fire({
-        icon: 'success',
-        title: 'Cierre de Caja',
-        text: `El cierre de caja para el turno ${turno} se ha realizado exitosamente.`
-      });
-    })
-    .catch((error: PocketBaseError) => {
-      console.error('Error al registrar el cierre de caja:', error.message);
-      Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: 'No se pudo registrar el cierre de caja. Por favor, intente nuevamente.'
-      });
-    });
-} */
-
     
-/* cerrarCaja() {
-  const cierreData = {
-    customer: "Nombre del Cliente", // Asegúrate de asignar el nombre del cliente correspondiente
-    total: this.totalVentasDelDia, // Total de ventas del día
-    date: new Date().toISOString(), // Almacena la fecha actual en formato ISO
-    hora: new Date().toLocaleTimeString(), // Almacena la hora actual
-    idProduct: JSON.stringify(this.productosSeleccionados.map(venta => venta.idProduct)), // Almacena los IDs de los productos en formato JSON
-    idUser: "ID del Usuario", // Asigna el ID del usuario que realiza el cierre
-  };
-
-  // Guardar el cierre en la colección cierresCaja
-  this.pb.collection('cierresCaja').create(cierreData)
-    .then(() => {
-      console.log('Cierre de caja registrado exitosamente.');
-      // Reiniciar la lista de ventas
-      this.productosSeleccionados = [];
-      this.totalVentasDelDia = 0;
-      Swal.fire({
-        icon: 'success',
-        title: 'Cierre de Caja',
-        text: 'El cierre de caja se ha realizado exitosamente.'
-      });
-    })
-    .catch((error: PocketBaseError) => {
-      console.error('Error al registrar el cierre de caja:', error.message);
-      Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: 'No se pudo registrar el cierre de caja. Por favor, intente nuevamente.'
-      });
-    });
-}   */
+   
   
     // Modify cantidad input to validate stock
     onCantidadChange(producto: any) {

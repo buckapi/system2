@@ -63,7 +63,11 @@
                                                     <div class="flex-align flex-wrap gap-8">
                                                         <span class="w-8 h-8 rounded-circle bg-main-600"></span>
                                                         <span class="text-13 text-gray-600">Ventas</span>
-                                                    </div>
+                                                    </div><!-- 
+                                                    <div class="flex-align flex-wrap gap-8">
+                                                        <span class="w-8 h-8 rounded-circle bg-main-two-600"></span>
+                                                        <span class="text-13 text-gray-600">Ingresos</span>
+                                                    </div> -->
                                                 </div>
                                                 
                                             </div>
@@ -75,6 +79,7 @@
                                                     <thead>
                                                         <tr>
                                                             <th>Fecha</th>
+                                                            <!-- <th>Empleado</th> -->
                                                             <th>Cliente</th>
                                                             <th>Producto</th>
                                                             <th>Total</th>
@@ -87,8 +92,11 @@
                                                             <td>{{venta.date | date:'short'}}</td>  
                                                             <td>{{venta.customer}}</td>
                                                             <td>{{venta.idProduct && venta.idProduct.length > 0 ? venta.idProduct[0].name : ''}}</td>                                                     
-                                                            <td>₡ {{venta.total | number:'1.2-2'}}</td>                                      
-                                                            <td>
+                                                            <td>₡ {{venta.total | number:'1.2-2'}}</td>    
+                                                            <td *ngIf="venta.qrCode">
+                                                                <p>QR Code exists: {{ venta.qrCode }}</p> <!-- Para verificar -->
+                                                                <img [src]="getQrCodeUrl(venta)" alt="QR Code" width="50" height="50">
+                                                            </td>                                                      <td>
                                                                 <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#openSaleDetailsModal" (click)="openSaleDetailsModal(venta)">
                                                                 Ver
                                                                 </button>
@@ -103,8 +111,6 @@
                                                         </ng-template>
                                                     </tbody>
                                                 </table>
-                                               
-                                                  
                                             </div>
                                     </div>
                                 </div>
@@ -115,7 +121,7 @@
                         
                     <div class="dashboard-body">
                         <div class="breadcrumb-with-buttons mb-24 flex-between flex-wrap gap-8" *ngIf="showCashClose">
-                        <!-- 
+
                         <div class="resumen-ventas mt-4" >
                             <h3>Cierre de Caja</h3>
                             
@@ -124,52 +130,7 @@
                             <strong>₡ {{totalVentasDelDia | number:'1.2-2'}}</strong>
                             </div>
                         </div>
-                        <div>
-                            <span>Total de Ventas del Día:</span>
-                            <h2>{{ totalVentasDelDia | number:'1.2-2' }}</h2>
-                            
-                            <ul>
-                              <li *ngFor="let venta of productosSeleccionados">
-                                {{ venta.description }} - ₡{{ venta.price }} - Cantidad: {{ venta.cantidad }}
-                              </li>
-                            </ul>
-                          
-                            <div *ngIf="productosSeleccionados.length === 0">
-                              <p>No hay ventas registradas.</p>
-                            </div>
-                        </div>-->
-                        <div class="resumen-ventas mt-4">
-                            <h3>Cierre de Caja</h3>
-                            <div class="d-flex justify-content-between mb-2">
-                              <span>Total de Ventas del Día:</span>
-                              <strong>₡ {{totalVentasDelDia | number:'1.2-2'}}</strong>
-                            </div>
-                            
-                            <!-- Mostrar ventas por turno (mañana/tarde) -->
-                            <div *ngIf="turnoSeleccionado === 'Mañana'">
-                              <h4>Ventas del Turno Mañana</h4>
-                              <ul>
-                                <li *ngFor="let venta of ventasDelDiaManana">
-                                  {{ venta.customer }} - ₡{{ venta.total | number:'1.2-2' }}
-                                </li>
-                              </ul>
-                            </div>
-                            
-                            <div *ngIf="turnoSeleccionado === 'Tarde'">
-                              <h4>Ventas del Turno Tarde</h4>
-                              <ul>
-                                <li *ngFor="let venta of ventasDelDiaTarde">
-                                  {{ venta.customer }} - ₡{{ venta.total | number:'1.2-2' }}
-                                </li>
-                              </ul>
-                            </div>
-                            
-                            <div *ngIf="productosSeleccionados.length === 0">
-                              <p>No hay ventas registradas.</p>
-                            </div>
-                          </div>
                         </div>
-                          
                         
 
                         <ul class="step-list mb-24" *ngIf="showForm">

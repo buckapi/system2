@@ -4,7 +4,6 @@ import { GlobalService } from '../../services/global.service';
 import { TopNavbarComponent } from '../ui/top-navbar/top-navbar.component';
 import { DataApiService } from '../../services/data-api.service';
 import { AuthPocketbaseService } from '../../services/auth-pocketbase.service';
-import { Router } from '@angular/router';
 import { FormGroup, FormControl } from '@angular/forms';
 import { RealtimeProductsService } from '../../services/realtime-productos.service';
 import { HttpClient } from '@angular/common/http';
