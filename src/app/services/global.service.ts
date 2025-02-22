@@ -95,4 +95,7 @@ export class GlobalService {
     console.log('Término de búsqueda:', termino); // Para debugging
     this.filtrarProductos(termino);
   }
+  getProductos(): any[] {
+    return this.productos;
+  }
 }

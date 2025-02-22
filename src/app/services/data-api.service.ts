@@ -37,7 +37,7 @@ export interface cobranzaInterface{
   providedIn: 'root'
 })
 export class DataApiService {
-  private baseUrl = 'https://db.buckapi.com:8095/api';
+  private baseUrl = 'https://db.buckapi.lat:8095/api';
 
   constructor(
     private http: HttpClient,           

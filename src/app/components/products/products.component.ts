@@ -21,6 +21,17 @@ export interface PocketBaseError {
   message: string;
   // otras propiedades que puedas necesitar
 }
+export interface Product {
+  name: string;
+  price: number;
+  idCategoria: string;
+  description: string;
+  unity: number; // Change from string to number
+  stock: number;
+  color: string;
+  files: string[];
+  codeBarra: string;
+}
 @Component({
   selector: 'app-products',
   standalone: true,
@@ -35,8 +46,10 @@ export interface PocketBaseError {
   styleUrl: './products.component.css'
 })
 export class ProductsComponent {
+  private pb: PocketBase;
+  private apiUrl = 'https://db.buckapi.lat:8095';
   showForm = false;
-  productForm: FormGroup;
+  /* productForm: FormGroup; */
   previewImage: string = 'assets/images/thumbs/setting-profile-img.jpg';
   products: any[] = []; // Changed Product to any[] since Product type is not defined
   products$: any;
@@ -51,7 +64,25 @@ export class ProductsComponent {
   productosFiltrados: any[] = [];
   productos$: any;
   searchTerm: string = '';
-  private pb: PocketBase;
+  product = {
+    name: '',
+    price: 0, // Change to string
+    idCategoria: '', // Include categorias
+    description: '', // Include description
+    files: [] , // Include files as an array
+    unity: 0,
+    stock: 0,
+    color: '',
+    codeBarra: ''
+  };
+  totalProductos: number = 0;
+  productos: any[] = [];
+  userName: string = '';
+  showCategories: boolean = false;
+  showProducts: boolean = false;
+  addProductForm: FormGroup;
+  selectedImage: File | null = null;
+  selectedImagePrev: string = '';
   constructor(
     public global: GlobalService,
     private fb: FormBuilder,
@@ -63,21 +94,24 @@ export class ProductsComponent {
     public uploadService: UploadService,
     public productService: ProductService
   ) {
-    this.pb = new PocketBase('https://db.buckapi.com:8095'); // Inicializa PocketBase
-
-    this.realtimeProducts.products$ = from(this.pb.collection('productsInventory').getFullList());
-
-    // Configurar el formulario con validadores
-    this.productForm = this.fb.group({
-      idCategoria: ['', Validators.required],
-      name: ['', Validators.required],
-      description: ['', Validators.required],
-      unity: [1, [Validators.required, Validators.min(1)]],
-      price: [0, [Validators.required, Validators.min(0.01)]],
-      stock: [0, [Validators.required, Validators.min(0)]],
-      color: ['', Validators.required],
-      file: [null]
+  
+    this.realtimeProducts.products$.subscribe((products) => {
+      this.global.productos = products;
     });
+    this.pb = new PocketBase(this.apiUrl);
+    this.addProductForm = this.fb.group({
+      name: [''],
+      price: [''],
+      stock: [''],
+      idCategoria: [''],
+      description: [''],
+      files: [''],
+      unity: [''],
+      color: [''],
+      codeBarra: ['']
+    });
+  
+    
   }
   ngOnInit() {
     this.loadProducts();
@@ -128,15 +162,16 @@ export class ProductsComponent {
   this.showForm = !this.showForm;
   if (this.showForm) {
     this.isEditing = false;
-    this.productForm.reset();
+    this.addProductForm.reset();
     this.previewImage = 'assets/images/thumbs/setting-profile-img.jpg';
     // Set default values if needed
-    this.productForm.patchValue({
+    this.addProductForm.patchValue({
       unity: 1,
       price: 0,
-      /* code: 123, */
       stock: 0,
-      color: '', // Reiniciar el campo "color"
+      color: '', 
+      file: '',
+      name: ''
     });
   }
   }
@@ -152,179 +187,118 @@ export class ProductsComponent {
     });
     return canvas.toDataURL('image/png'); // Regresa la imagen en formato base64
   }
-  addProduct() {
-    if (this.productForm.invalid) {
-      console.log('Formulario inválido', this.productForm.errors);
-      Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: 'Por favor complete todos los campos requeridos.'
-      });
-      return;
-    }
-  
-    // Prepara los datos del producto
-    const productData = {
-      name: this.productForm.get('name')?.value,
-      description: this.productForm.get('description')?.value,
-      unity: this.productForm.get('unity')?.value,
-      price: this.productForm.get('price')?.value,
-      stock: this.productForm.get('stock')?.value,
-      color: this.productForm.get('color')?.value,
-      codeBarra: this.generateBarcode(), // Genera el código de barras único
-      idCategoria: this.productForm.get('idCategoria')?.value,
-    };
-  
-    // Llama al servicio de carga de imágenes
-    if (this.selectedFile) {
-      this.uploadService.uploadAndCreateProduct(this.selectedFile, productData).subscribe({
-        next: (result) => {
-          Swal.fire({
-            icon: 'success',
-            title: 'Éxito',
-            text: 'Producto guardado correctamente'
-          });
-          this.resetForm(); // Resetear el formulario
-          this.loadProducts(); // Actualiza la lista de productos
-        },
-        error: (error) => {
-          console.error('Error al guardar el producto:', error);
-          Swal.fire({
-            icon: 'error',
-            title: 'Error',
-            text: 'No se pudo guardar el producto. Por favor, intente nuevamente.'
-          });
-        }
-      });
-    } else {
-      // Si no hay imagen, guarda el producto sin imagen
-      this.saveProduct(productData);
+  onImageChange(event: any): void {
+    const file = event.target.files[0];
+    if (file) {
+      this.selectedImage = file;
+      const reader = new FileReader();
+      reader.onload = (e: any) => {
+        this.selectedImagePrev = e.target.result;
+      };
+      reader.readAsDataURL(file);
     }
   }
-  private resetForm() {
-    this.productForm.reset();
-    this.showForm = false;
-    this.selectedFile = null;
-    this.imagePreview = null;
-}
-async saveProduct(productData: any) {
-  try {
-      const record = await this.uploadService.pb.collection('productsInventory').create(productData);
-      console.log('Producto guardado correctamente:', record);
-      Swal.fire({
-          icon: 'success',
-          title: 'Éxito',
-          text: 'Producto guardado correctamente'
-      });
-      this.resetForm(); // Resetear el formulario
-      this.loadProducts(); // Actualiza la lista de productos
-  } catch (error) {
-      console.error('Error al guardar el producto:', error);
-      Swal.fire({
-          icon: 'error',
-          title: 'Error',
-          text: 'No se pudo guardar el producto. Por favor, intente nuevamente.'
-      });
-  }
-}    
-  
-  updateProduct(productId: string) {
-    this.currentProductId = productId;
-    this.showForm = true;
-    this.isEditing = true;
-
-    // Obtener el producto actual y llenar el formulario
-    this.realtimeProducts.products$.subscribe(products => {
-      const product = products.find((p: any) => p.id === productId);
-      if (product) {
-        this.productForm.patchValue({
-          name: product.name,
-/*           code: product.code,
- */          description: product.description,
-          unity: product.unity,
-          price: product.price,
-          idCategoria: product.idCategoria,
-          stock: product.stock,
-          color: product.color,
-          file: product.file,
-          codeBarra: product.codeBarra
-        });
-
-        if (product.image) {
-          this.imagePreview = product.image;
-        }
+  async onSubmit() {
+      // Verificar si el formulario es válido
+      if (this.addProductForm.invalid) {
+          console.log('Formulario inválido', this.addProductForm.errors);
+          Swal.fire({
+              title: 'Error!',
+              text: 'Por favor complete todos los campos requeridos.',
+              icon: 'error',
+              confirmButtonText: 'Aceptar'
+          });
+          return;
       }
-    });
-  }
-  async saveupdateProduct(productData: any) {
-    try {
-      // Crear un FormData para enviar el producto
+  
+      // Verificar si se ha seleccionado una imagen
+      if (!this.selectedImage) {
+          Swal.fire({
+              title: 'Error!',
+              text: 'Por favor, seleccione una imagen antes de guardar el producto.',
+              icon: 'error',
+              confirmButtonText: 'Aceptar'
+          });
+          return;
+      }
+  
       const formData = new FormData();
-      formData.append('name', productData.name);
-      formData.append('price', productData.price);
-      formData.append('code', productData.code);
-      formData.append('unity', productData.unity);
-      formData.append('description', productData.description);
-      formData.append('idCategoria', productData.idCategoria);
-      formData.append('stock', productData.stock);
-      formData.append('color', productData.color); // Incluir el campo "color"
-      formData.append('codeBar', productData.codeBar);
-      formData.append('codeBarra', productData.codeBarra);
+      formData.append('image', this.selectedImage); // Agregar la imagen al formData
   
-      // Si existe un archivo, lo agregamos al FormData
-      if (productData.file) {
-        formData.append('file', productData.file);
+      try {
+          // Intentar subir la imagen y crear el producto en una sola operación
+          let newImageRecord: any = await this.pb.collection('files').create(formData);
+  
+          if (newImageRecord) {
+              console.log('Imagen subida:', newImageRecord);
+  
+              const files: string[] = [
+                  this.apiUrl +
+                  '/api/files/' +
+                  newImageRecord.collectionId +
+                  '/' +
+                  newImageRecord.id +
+                  '/' +
+                  newImageRecord.image
+              ];
+  
+              // Crear el objeto del producto con la información necesaria
+              const productData = {
+                  name: this.addProductForm.get('name')?.value,
+                  price: this.addProductForm.get('price')?.value,
+                  idCategoria: this.addProductForm.get('idCategoria')?.value,
+                  description: this.addProductForm.get('description')?.value,
+                  unity: this.addProductForm.get('unity')?.value,
+                  stock: this.addProductForm.get('stock')?.value,
+                  color: this.addProductForm.get('color')?.value,
+                  files: files,
+                  codeBarra: this.generateBarcode() // Asegúrate de que este método esté definido
+              };
+  
+              // Llamar al servicio para agregar el producto
+              await this.productService.createProduct(productData);
+  
+              Swal.fire({
+                  title: 'Éxito!',
+                  text: 'Producto guardado con éxito!',
+                  icon: 'success',
+                  confirmButtonText: 'Aceptar'
+              });
+  
+              // Restablecer el objeto del producto
+              this.product = { 
+                  name: '', 
+                  price: 0, 
+                  idCategoria: '', 
+                  description: '', 
+                  unity: 0,
+                  stock: 0,
+                  color: '',
+                  files: [],
+                  codeBarra: ''
+              }; 
+              this.selectedImage = null; // Restablecer la imagen seleccionada
+              this.productos = this.global.getProductos(); // Refrescar la lista de productos
+          } else {
+              Swal.fire({
+                  title: 'Error!',
+                  text: 'La imagen no se subió correctamente.',
+                  icon: 'error',
+                  confirmButtonText: 'Aceptar'
+              });
+          }
+      } catch (error) {
+          Swal.fire({
+              title: 'Error!',
+              text: 'No se pudo agregar el producto.',
+              icon: 'error',
+              confirmButtonText: 'Aceptar'
+          });
+          console.error('Error al agregar el producto:', error);
       }
-  
-      // Intentar actualizar el producto
-      const record = await this.uploadService.pb.collection('productsInventory').update(this.currentProductId, formData);
-  
-      // Actualizar la lista de productos en tiempo real si es necesario
-      this.realtimeProducts.products$ = from(this.uploadService.pb.collection('productsInventory').getFullList());
-  
-      // Mostrar mensaje de éxito
-      Swal.fire({
-        icon: 'success',
-        title: 'Éxito',
-        text: 'Producto actualizado correctamente'
-      });
-  
-      // Actualizar los datos en el formulario para reflejar los cambios
-      this.productForm.patchValue({
-        name: productData.name,
-        price: productData.price,
-        code: productData.code,
-        unity: productData.unity,
-        description: productData.description,
-        idCategoria: productData.idCategoria,
-        stock: productData.stock,
-        color: productData.color, // Incluir el campo "color"
-        codeBar: productData.codeBar,
-        codeBarra: productData.codeBarra
-      });
-  
-      // Cerrar el formulario de edición
-      this.productForm.reset();
-      this.showForm = false;
-      this.isEditing = false;
-  
-    } catch (error) {
-      console.error('Error al actualizar:', error);
-      Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: 'No se pudo actualizar el producto. Por favor, intente nuevamente.'
-      });
-    }
+      console.log(this.addProductForm.value);
   }
-  
-  cancelEdit() {
-    this.showForm = false;
-    this.isEditing = false;
-    this.productForm.reset();
-    this.imagePreview = '';
-  }
-  deleteProduct(productId: string) {
+    deleteProduct(productId: string) {
     Swal.fire({
       title: '¿Está seguro?',
       text: "No podrá revertir esta acción",
@@ -380,7 +354,13 @@ async saveProduct(productData: any) {
     }
     return 0;
   }
-
+  cancelEdit() {
+    this.showForm = false;
+    this.isEditing = false;
+    this.addProductForm.reset();
+    this.imagePreview = '';
+  }
+ 
   onImageSelect(event: any) {
     const input = event.target as HTMLInputElement;
     if (input?.files?.length) {

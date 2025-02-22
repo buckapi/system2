@@ -52,7 +52,7 @@ import { BarcodeComponent } from './components/barcode/barcode.component';
   styleUrl: './app.component.css'
 })
 export class AppComponent {
-  title = 'qualitydetailing';
+  title = 'sistemaInventario';
   constructor (
     public global: GlobalService,
     public auth:AuthPocketbaseService,

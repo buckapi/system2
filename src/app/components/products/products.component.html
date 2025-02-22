@@ -22,13 +22,11 @@
       <!-- Filtro de busqueda -->
       <div class="card mt-24">
         <div class="card-body">
-          <div class="mb-20 flex-between flex-wrap gap-8" [hidden]="showForm">
+          <!-- <div class="mb-20 flex-between flex-wrap gap-8" [hidden]="showForm">
             <h4 class="mb-0">Filtros de búsqueda</h4>
             <div class="flex-align gap-16">
-              <!-- Toggle Button Start -->
                <button type="button" class="toggle-btn d-xl-none d-flex text-26 text-gray-500"><i class="ph ph-list"></i></button>
-              <!-- Toggle Button End -->
-              
+            
               <form action="index.html#" class="w-350 d-sm-block d-none">
                   <div class="position-relative">
                       <button type="submit" class="input-icon text-xl d-flex text-gray-100 pointer-event-none"><i class="ph ph-magnifying-glass"></i></button> 
@@ -62,10 +60,10 @@
                 </div>
               </div>
             </div>
-          </div>
+          </div> -->
 
           <div class="row g-20" [hidden]="showForm">
-            <div class="col-xxl-3 col-lg-4 col-sm-6" *ngFor="let product of (realtimeProducts.products$ | async)">
+            <div class="col-xxl-3 col-lg-4 col-sm-6" *ngFor="let product of (realtimeProducts.products$ | async); let i = index">
               <div class="card border border-gray-100">
                 <!-- Mostrar el código de barras -->
                 <div class="flex-between gap-4 flex-wrap mt-24" *ngIf="product.codeBarra">
@@ -73,12 +71,13 @@
                 </div>
                 <div class="card-body p-8">
                   <a class="bg-main-100 rounded-8 overflow-hidden text-center mb-8 h-164 flex-center p-8">
-                    <img *ngIf="product.file" [src]="product.file" alt="Imagen del Producto">
-                    <button type="button" (click)="updateProduct(product.id)"
+                    <!-- <img *ngIf="product.file" [src]="product.file" alt="Imagen del Producto" > -->
+                    <img *ngIf="product.files[0]" src="{{product.files[0]}}" alt="image">
+                    <!-- <button type="button" (click)="updateProduct(product.id)"
                       class="follow-btn py-2 px-8 flex-align gap-4 text-13 fw-medium text-black border border-black rounded-pill position-absolute inset-block-start-0 inset-inline-end-0 mt-8 me-8 transition-1">
                       <i class="ph ph-pencil d-flex"></i>
                       <span class="text">Editar</span>
-                    </button>
+                    </button> -->
                     
                     <button type="button"
                       class="follow-btn py-2 px-8 flex-align gap-4 text-13 fw-medium text-black border border-black rounded-pill position-absolute inset-block-start-0 inset-inline-end-0 mt-48 me-8 transition-1">
@@ -131,7 +130,7 @@
           <p class="text-gray-600 text-15">Ingrese todos los datos del producto</p>
         </div>
         <div class="card-body">
-          <form [formGroup]="productForm" (ngSubmit)="addProduct()" #productFormDir="ngForm">
+          <form [formGroup]="addProductForm" (ngSubmit)="onSubmit()" #productFormDir="ngForm">
             <div class="row gy-4">
               <div class="col-sm-6 col-xs-6">
                 <label for="category" class="form-label mb-8 h6">Categoría</label>
@@ -167,7 +166,7 @@
                 <label for="color" class="form-label mb-8 h6">Color</label>
                 <input formControlName="color" type="text" class="form-control py-11" id="color" placeholder="Ingrese color">
               </div>
-              <div class="col-12">
+              <!-- <div class="col-12">
                 <label for="imageUpload" class="form-label mb-8 h6">Imagen</label>
                 <div class="flex-align gap-22">
                   <div class="text-center position-relative flex-grow-1 py-24 px-4 rounded-16 border border-main-300 border-dashed bg-main-50 hover-bg-main-100 hover-border-main-400 transition-2 cursor-pointer">
@@ -175,25 +174,38 @@
                     <img [src]="imagePreview" alt="Imagen previa" class="img-thumbnail" style="max-width: 150px;" *ngIf="imagePreview">
                   </div>
                 </div>
+              </div> -->
+              <div class="clearfix">
+                <div class="custom-file-upload">
+                  <div *ngIf="selectedImage" class="image-preview">
+                    <img [src]="selectedImagePrev" alt="Selected Image" class="img-thumbnail"
+                         style="border-radius: 50%; cursor: pointer; border: 5px solid #3ba5a8; box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); transition: box-shadow 0.3s ease, transform 0.3s ease; max-width: 150px; max-height: 150px;" />
+                  </div>
+                  <input #imageUpload id="imageUpload" type="file" (change)="onImageChange($event)" class="form-control"
+                         accept="image/*" style="display: none;" />
+                  <label for="imageUpload" class="btn mb-2 me-2 btn-primary">
+                    <i class="fa-solid fa-search me-2"></i>Imágen de producto
+                  </label>
+                  <div *ngIf="!selectedImage" class="text-danger">* Por favor, suba una imagen.</div>
+                </div>
               </div>
               <div class="col-lg-12 col-sm-6 col-xs-6">
                   <div class="flex-align justify-content-end gap-8">
                     <button type="button" (click)="showForm=false" class="btn btn-outline-main bg-main-100 border-main-100 text-main-600 rounded-pill py-3 px-4">Cancelar</button>
-                    <button type="submit" class="btn btn-main rounded-pill py-3 px-4" [disabled]="!productForm.valid">Guardar y generar código de barras</button>
+                    <button type="submit" class="btn btn-main rounded-pill py-3 px-4" [disabled]="!addProductForm.valid">Guardar y generar código de barras</button>
                   </div>
               </div>
             </div>
           </form>
         </div>
       </div>
-      <div class="card mt-24" [hidden]="!showForm || !isEditing">
+    <!--   <div class="card mt-24" [hidden]="!showForm || !isEditing">
         <div class="card-header border-bottom">
           <h4 class="mb-4">Editar producto</h4>
           <p class="text-gray-600 text-15">Ingrese todos los datos del producto</p>
         </div>
 
         <div class="card-body">
-          <!-- formulario de edicion -->
           <form [formGroup]="productForm" (ngSubmit)="saveupdateProduct(currentProductId)" #productFormDir="ngForm">
             <div class="row gy-4">
               <div class="col-sm-6 col-xs-6">
@@ -215,11 +227,11 @@
                 <input formControlName="name" type="text" class="form-control py-11" id="name"
                   placeholder="Nombre del producto">
               </div>
-              <!-- <div class="col-sm-6 col-xs-6">
+               <div class="col-sm-6 col-xs-6">
                 <label for="code" class="form-label mb-8 h6">Codigo</label>
                 <input formControlName="code" type="number" class="form-control py-11" id="code"
                   placeholder="Ingrese codigo">
-              </div> -->
+              </div>
               <div class="col-sm-6 col-xs-6">
                 <label for="description" class="form-label mb-8 h6">Descripcion</label>
                 <input formControlName="description" type="text" class="form-control py-11" id="description"
@@ -264,7 +276,7 @@
             </div>
           </form>
         </div>
-      </div>
+      </div> -->
     </div>
   </div>
 </div>

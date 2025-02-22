@@ -14,7 +14,7 @@ export class RealtimeCuentasxpagarService implements OnDestroy {
     this.cuentasxpagarSubject.asObservable();
 
   constructor() {
-    this.pb = new PocketBase('https://db.buckapi.com:8095');
+    this.pb = new PocketBase('https://db.buckapi.lat:8095');
     this.subscribeToCuentasxpagar();
   }
 
