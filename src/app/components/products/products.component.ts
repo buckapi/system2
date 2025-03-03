@@ -182,7 +182,7 @@ export class ProductsComponent {
       format: "CODE128",
       lineColor: "#0aa",
       width: 4,
-      height: 40,
+      height: 250,
       displayValue: true
     });
     return canvas.toDataURL('image/png'); // Regresa la imagen en formato base64
@@ -287,6 +287,9 @@ export class ProductsComponent {
                   confirmButtonText: 'Aceptar'
               });
           }
+          this.addProductForm.reset();
+          this.showForm = false;
+          this.isEditing = false;
       } catch (error) {
           Swal.fire({
               title: 'Error!',

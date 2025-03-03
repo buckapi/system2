@@ -110,12 +110,7 @@ export class CashComponent {
       this.productosFiltrados = [...products]; // Inicialmente muestra todos los productos
       console.log('Productos cargados:', this.productos); // Para debugging
     });
-   /*  this.realtimeVentas.ventas$.subscribe(ventas => {
-      this.ventas = ventas;
-      if (ventas) {
-        this.totalVentasDelDia = ventas.reduce((total, venta) => total + (venta.total || 0), 0);
-      }
-    }); */
+   
     this.realtimeVentas.ventas$.subscribe(ventas => {
       this.ventas = ventas;
       console.log('Ventas cargadas:', this.ventas); // Para debugging
@@ -180,7 +175,6 @@ filtrarProductos(termino: string) {
   termino = termino.toLowerCase();
   this.productosFiltrados = this.productos.filter(producto => 
       producto.name.toLowerCase().includes(termino) || 
-      producto.code.toLowerCase().includes(termino) || 
       producto.codeBarra.toLowerCase().includes(termino) // Filtrar por código de barras
   );
   console.log('Productos filtrados:', this.productosFiltrados); // Para debugging

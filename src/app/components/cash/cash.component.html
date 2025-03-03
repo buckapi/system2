@@ -4,9 +4,7 @@
         <div class="card-body">
             <div class="top-navbar  gap-16">
                 <div class="row">
-                <!--  <div class="flex-align gap-16 col-12 text-center">
-                        <h1>Caja registradora</h1>
-                    </div> -->
+             
                     <div class="col-12" style="text-align: right;">
                         <div class="fecha-hora">
                             <span class="fecha">{{fechaActual}}</span> /
@@ -63,11 +61,7 @@
                                                     <div class="flex-align flex-wrap gap-8">
                                                         <span class="w-8 h-8 rounded-circle bg-main-600"></span>
                                                         <span class="text-13 text-gray-600">Ventas</span>
-                                                    </div><!-- 
-                                                    <div class="flex-align flex-wrap gap-8">
-                                                        <span class="w-8 h-8 rounded-circle bg-main-two-600"></span>
-                                                        <span class="text-13 text-gray-600">Ingresos</span>
-                                                    </div> -->
+                                                    </div>
                                                 </div>
                                                 
                                             </div>
@@ -191,7 +185,7 @@
                                                 <div>
                                                     <strong>{{producto.name}}</strong>
                                                     <br>
-                                                    <small>Código: {{producto.code}}</small>
+                                                    <small>Código de barras: {{producto.codeBarra}}</small>
                                                 </div>
                                                 <div>
                                                     <span class="badge bg-primary">{{producto.price | currency}}</span>
@@ -466,11 +460,11 @@
                                             <td>{{selectedSale.unity}}</td>
                                             <td>₡ {{product.price | number:'1.2-2'}}</td>
                                             <td>₡ {{selectedSale.total | number:'1.2-2'}}</td>
-                                            <td>
+                                            <!-- <td>
                                                 <div class="flex-between gap-4 flex-wrap mt-24" *ngIf="product.codeBarra">
                                                     <img [src]="product.codeBarra" alt="Código de Barras" class="imgbarcodeImage">
                                                   </div>
-                                            </td>
+                                            </td> -->
                                         </tr>
                                     </tbody>
                                 </table>
