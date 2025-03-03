@@ -81,20 +81,33 @@
                                                         </tr>
                                                     </thead>
                                                     <tbody>
-                                                        <ng-container *ngFor="let venta of (realtimeVentas.ventas$ | async)">
+                                                        <!-- <ng-container *ngFor="let venta of (realtimeVentas.ventas$ | async)">
                                                             <tr>
                                                             <td>{{venta.date | date:'short'}}</td>  
                                                             <td>{{venta.customer}}</td>
                                                             <td>{{venta.idProduct && venta.idProduct.length > 0 ? venta.idProduct[0].name : ''}}</td>                                                     
                                                             <td>₡ {{venta.total | number:'1.2-2'}}</td>    
-                                                            <td *ngIf="venta.qrCode">
-                                                                <p>QR Code exists: {{ venta.qrCode }}</p> <!-- Para verificar -->
-                                                                <img [src]="getQrCodeUrl(venta)" alt="QR Code" width="50" height="50">
-                                                            </td>                                                      <td>
+                                                                                                                <td>
                                                                 <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#openSaleDetailsModal" (click)="openSaleDetailsModal(venta)">
                                                                 Ver
                                                                 </button>
                                                             </td>
+                                                            </tr>
+                                                        </ng-container> -->
+                                                        <ng-container *ngFor="let venta of (realtimeVentas.ventas$ | async)">
+                                                            <tr>
+                                                                <td>{{venta.date | date:'short'}}</td>  
+                                                                <td>{{venta.customer}}</td>
+                                                                <td>{{venta.idProduct && venta.idProduct.length > 0 ? venta.idProduct[0].name : ''}}</td>                                                     
+                                                                <td>₡ {{venta.total | number:'1.2-2'}}</td>    
+                                                                <td>
+                                                                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#openSaleDetailsModal" (click)="openSaleDetailsModal(venta)">
+                                                                        Ver
+                                                                    </button>
+                                                                </td>
+                                                                <td *ngIf="venta.qrCodeUrl">
+                                                                    <img [src]="venta.qrCodeUrl" alt="Código QR" width="50" height="50">
+                                                                </td>
                                                             </tr>
                                                         </ng-container>
                                                         
@@ -460,12 +473,10 @@
                                             <td>{{selectedSale.unity}}</td>
                                             <td>₡ {{product.price | number:'1.2-2'}}</td>
                                             <td>₡ {{selectedSale.total | number:'1.2-2'}}</td>
-                                            <!-- <td>
-                                                <div class="flex-between gap-4 flex-wrap mt-24" *ngIf="product.codeBarra">
-                                                    <img [src]="product.codeBarra" alt="Código de Barras" class="imgbarcodeImage">
-                                                  </div>
+                                           <!--  <td *ngIf="venta.qrCodeUrl">
+                                                <img [src]="venta.qrCodeUrl" alt="Código QR" width="50" height="50">
                                             </td> -->
-                                        </tr>
+                                        </tr>                                        
                                     </tbody>
                                 </table>
                             </div>

@@ -117,11 +117,7 @@ export class ProductsComponent {
     this.loadProducts();
     this.global.applyFilters(this.selectedCategory, this.searchQuery); // Initial call to set up default view
 }
-  /* loadProducts() {
-    this.realtimeProducts.products$.subscribe((products: any[]) => {
-      // Load products if needed
-    });
-  } */
+  
     loadProducts() {
       // Cargar productos inicialmente
       this.productService.getProducts().subscribe(products => {

@@ -340,7 +340,7 @@ filtrarProductos(termino: string) {
     
  // Función para generar y subir el código QR
 
-processSaleWithQRCode(venta: any): Promise<void> {
+/* processSaleWithQRCode(venta: any): Promise<void> {
   return new Promise((resolve, reject) => {
     const pb = new PocketBase('https://db.buckapi.lat:8095');
 
@@ -381,9 +381,51 @@ processSaleWithQRCode(venta: any): Promise<void> {
       reject(error); // Rechaza la promesa en caso de error
     });
   });
-}
+} */
     
-   
+  processSaleWithQRCode(venta: any): Promise<void> {
+    return new Promise((resolve, reject) => {
+      const pb = new PocketBase('https://db.buckapi.lat:8095');
+  
+      QRCode.toDataURL(`venta-${venta.id}`).then((qrCodeUrl) => {
+        const byteCharacters = atob(qrCodeUrl.split(',')[1]);
+        const byteArrays = [];
+        for (let offset = 0; offset < byteCharacters.length; offset++) {
+          const byte = byteCharacters.charCodeAt(offset);
+          byteArrays.push(byte);
+        }
+        const blob = new Blob([new Uint8Array(byteArrays)], { type: 'image/png' });
+        const file = new File([blob], `venta-${venta.id}.png`, { type: 'image/png' });
+  
+        const ventaData = {
+          customer: venta.customer,
+          total: venta.total,
+          unity: venta.unity,
+          subTotal: venta.subTotal,
+          statusVenta: venta.statusVenta,
+          descuento: venta.descuento,
+          iva: venta.iva,
+          metodoPago: venta.metodoPago,
+          date: venta.date,
+          hora: venta.hora,
+          idProduct: venta.idProduct,
+          idUser: venta.idUser,
+          qrCodeUrl: qrCodeUrl, 
+          /* qrCode: file, */ // El archivo QR
+        };
+        pb.collection('ventas').create(ventaData).then((record) => {
+          console.log('Venta guardada exitosamente:', record);
+          resolve(); // Resuelve la promesa
+        }).catch((error) => {
+          console.error('Error al guardar la venta:', error);
+          reject(error); // Rechaza la promesa en caso de error
+        });
+      }).catch((error) => {
+        console.error('Error generando el código QR:', error);
+        reject(error); // Rechaza la promesa en caso de error
+      });
+    });
+  }
   
     // Modify cantidad input to validate stock
     onCantidadChange(producto: any) {
