@@ -103,14 +103,14 @@ export class CashComponent {
     return this.products.reduce((total, product) => total + (product.quantity || 0), 0);
   }
   ngOnInit() {
-    this.fechaActual = new Date().toLocaleDateString();
+   this.fechaActual = new Date().toLocaleDateString();
     this.horaActual = new Date().toLocaleTimeString();    
     this.realtimeProducts.products$.subscribe((products: any) => {
       this.productos = products;
       this.productosFiltrados = [...products]; // Inicialmente muestra todos los productos
       console.log('Productos cargados:', this.productos); // Para debugging
     });
-   
+  
     this.realtimeVentas.ventas$.subscribe(ventas => {
       this.ventas = ventas;
       console.log('Ventas cargadas:', this.ventas); // Para debugging
@@ -180,209 +180,291 @@ filtrarProductos(termino: string) {
   console.log('Productos filtrados:', this.productosFiltrados); // Para debugging
 }
 
+seleccionarProducto(producto: any) {
+this.productosSeleccionados.push({
+...producto,
+cantidad: 1
+});
+this.searchTerm = '';
+this.calcularTotal();
+this.pasoActual = 2; // Avanzamos al siguiente paso
+}
 
-    seleccionarProducto(producto: any) {
+eliminarProducto(producto: any) {
+// Primero mostrar confirmación
+Swal.fire({
+title: '¿Estás seguro?',
+text: `¿Deseas eliminar ${producto.name} de la lista?`,
+icon: 'warning',
+showCancelButton: true,
+confirmButtonColor: '#3085d6',
+cancelButtonColor: '#d33',
+confirmButtonText: 'Sí, eliminar',
+cancelButtonText: 'Cancelar'
+}).then((result) => {
+if (result.isConfirmed) {
+// Si el usuario confirma, eliminar el producto
+const index = this.productosSeleccionados.findIndex(p => p.code === producto.code);
+
+if (index !== -1) {
+this.productosSeleccionados.splice(index, 1);
+this.calcularTotal();
+
+// Mostrar mensaje de éxito
+Swal.fire({
+  title: '¡Eliminado!',
+  text: 'El producto ha sido eliminado correctamente',
+  icon: 'success',
+  timer: 1500,
+  showConfirmButton: false
+});
+
+// Si no quedan productos, volver al paso 1
+if (this.productosSeleccionados.length === 0) {
+  this.irAPaso(1);
+}
+}
+}
+});
+}
+
+calcularTotal() {
+this.total = this.productosSeleccionados.reduce((total, producto) => {
+return total + (producto.price * producto.cantidad);
+}, 0);
+}
+
+getImageUrl(imageName: string): string {
+const baseUrl = 'https://db.buckapi.lat:8095/api/files/';
+return `${baseUrl}${imageName}?token=YOUR_TOKEN_HERE`; // Asegúrate de reemplazar con el token correcto
+}
+async procesarPago() {
+  // Validar campos requeridos
+  if (!this.metodoPago || !this.customer) {
+    Swal.fire({
+      title: 'Error',
+      text: 'Por favor complete todos los campos requeridos',
+      icon: 'error',
+      confirmButtonText: 'Ok'
+    });
+    return;
+  }
+
+  // Verificar stock disponible para cada producto
+  for (const producto of this.productosSeleccionados) {
+    const stockDisponible = await this.realtimeProducts.obtenerStockProducto(producto.id);
+    if (producto.cantidad > stockDisponible) {
+      Swal.fire({
+        title: 'Cantidad no disponible',
+        text: `No hay suficiente stock para ${producto.name}. Stock disponible: ${stockDisponible}`,
+        icon: 'error',
+        confirmButtonText: 'Ok'
+      });
+      return;
+    }
+  }
+
+  // Confirmar la venta con el usuario
+  Swal.fire({
+    title: '¿Está seguro de procesar la venta?',
+    text: `Total a pagar: ₡${this.total.toFixed(2)}`,
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#3085d6',
+    cancelButtonColor: '#d33',
+    confirmButtonText: 'Sí, procesar',
+    cancelButtonText: 'Cancelar'
+  }).then(async (result) => {
+    if (result.isConfirmed) {
+      try {
+        // Crear el objeto de venta
+        const venta = {
+          customer: this.customer,
+          paymentMethod: this.metodoPago,
+          products: this.productosSeleccionados,
+          total: this.total,
+          idUser: this.currentUser.id,
+          unity: this.calculateTotalUnits(),
+          subTotal: this.subtotal.toString(),
+          iva: this.iva.toString(),
+          statusVenta: "completed",
+          descuento: "0",
+          metodoPago: this.metodoPago,
+          date: new Date().toISOString(),
+          hora: this.horaActual,
+          idProduct: JSON.stringify(this.productosSeleccionados),
+        };
+
+        // Procesar la venta y generar el código QR
+        await this.processSaleWithQRCode(venta);
+
+        // Actualizar el stock de los productos vendidos
+        await this.actualizarStockProductos();
+
+        // Reiniciar la cantidad de unidades después de la venta
+        this.productosSeleccionados.forEach(producto => {
+          producto.cantidad = 0; // Reiniciar la cantidad
+        });
+
+        // Mostrar mensaje de éxito
+        Swal.fire({
+          title: '¡Venta exitosa!',
+          text: 'La venta ha sido procesada correctamente.',
+          icon: 'success',
+          confirmButtonText: 'Ok'
+        });
+
+        // Reiniciar la venta y volver al paso 1
+        this.resetearVenta();
+        this.irAPaso(1);
+      } catch (error) {
+        // Manejar errores durante el proceso
+        console.error('Error al procesar la venta:', error);
+        Swal.fire({
+          title: 'Error',
+          text: 'Hubo un problema al procesar la venta. Por favor, intente nuevamente.',
+          icon: 'error',
+          confirmButtonText: 'Ok'
+        });
+      }
+    }
+  });
+}
+
+/* actualizarStockProductos() {
+this.productosSeleccionados.forEach(producto => {
+  const nuevoStock = producto.unity - producto.stock; // Restar la cantidad vendida del stock actual
+
+  // Llamada al servicio para actualizar el stock
+  this.realtimeProducts.actualizarStockProducto(producto.id, nuevoStock).subscribe(
+    response => {
+      console.log(`Stock actualizado para ${producto.name}: ${nuevoStock}`);
+      // Actualiza la propiedad stock del producto localmente
+      producto.stock = nuevoStock; // Actualiza el stock localmente
+    },
+    error => {
+      console.error(`Error al actualizar el stock de ${producto.name}:`, error);
+    }
+  );
+});
+} */
+actualizarStockProductos() {
+  this.productosSeleccionados.forEach(producto => {
+    const nuevoStock = producto.stock - producto.cantidad; // Restar la cantidad vendida del stock actual
+
+    // Llamada al servicio para actualizar el stock
+    this.realtimeProducts.actualizarStockProducto(producto.id, nuevoStock).subscribe(
+      response => {
+        console.log(`Stock actualizado para ${producto.name}: ${nuevoStock}`);
+        producto.stock = nuevoStock; // Actualiza el stock localmente
+      },
+      error => {
+        console.error(`Error al actualizar el stock de ${producto.name}:`, error);
+      }
+    );
+  });
+}
+
+/* agregarProducto(producto: any) {
+const existingProductIndex = this.productosSeleccionados.findIndex(p => p.id === producto.id);
+
+if (existingProductIndex !== -1) {
+const currentStock = producto.stock || 0;
+const currentQuantity = this.productosSeleccionados[existingProductIndex].cantidad;
+
+if (currentQuantity + 1 <= currentStock) {
+  this.productosSeleccionados[existingProductIndex].cantidad++;
+} else {
+  Swal.fire({
+    icon: 'warning',
+    title: 'Stock Insuficiente',
+    text: `Solo quedan ${currentStock} unidades de ${producto.name} en stock.`
+  });
+}
+} else {
+if (producto.stock && producto.stock > 0) {
+  this.productosSeleccionados.push({
+    ...producto,
+    cantidad: 1
+  });
+} else {
+  Swal.fire({
+    icon: 'warning',
+    title: 'Stock Agotado',
+    text: `El producto ${producto.name} no tiene stock disponible.`
+  });
+}
+}        
+this.calcularTotal();
+} */
+/* agregarProducto(producto: any) {
+  const existingProductIndex = this.productosSeleccionados.findIndex(p => p.id === producto.id);
+
+  if (existingProductIndex !== -1) {
+    const currentStock = producto.stock || 0;
+    const currentQuantity = this.productosSeleccionados[existingProductIndex].cantidad;
+
+    if (currentQuantity + 1 <= currentStock) {
+      this.productosSeleccionados[existingProductIndex].cantidad++;
+    } else {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Stock Insuficiente',
+        text: `Solo quedan ${currentStock} unidades de ${producto.name} en stock.`
+      });
+    }
+  } else {
+    if (producto.stock && producto.stock > 0) {
       this.productosSeleccionados.push({
         ...producto,
         cantidad: 1
       });
-      this.searchTerm = '';
-      this.calcularTotal();
-      this.pasoActual = 2; // Avanzamos al siguiente paso
-    }
-  
-    eliminarProducto(producto: any) {
-      // Primero mostrar confirmación
+    } else {
       Swal.fire({
-        title: '¿Estás seguro?',
-        text: `¿Deseas eliminar ${producto.name} de la lista?`,
         icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#3085d6',
-        cancelButtonColor: '#d33',
-        confirmButtonText: 'Sí, eliminar',
-        cancelButtonText: 'Cancelar'
-      }).then((result) => {
-        if (result.isConfirmed) {
-          // Si el usuario confirma, eliminar el producto
-          const index = this.productosSeleccionados.findIndex(p => p.code === producto.code);
-          
-          if (index !== -1) {
-            this.productosSeleccionados.splice(index, 1);
-            this.calcularTotal();
-  
-            // Mostrar mensaje de éxito
-            Swal.fire({
-              title: '¡Eliminado!',
-              text: 'El producto ha sido eliminado correctamente',
-              icon: 'success',
-              timer: 1500,
-              showConfirmButton: false
-            });
-  
-            // Si no quedan productos, volver al paso 1
-            if (this.productosSeleccionados.length === 0) {
-              this.irAPaso(1);
-            }
-          }
-        }
+        title: 'Stock Agotado',
+        text: `El producto ${producto.name} no tiene stock disponible.`
       });
     }
-  
-    calcularTotal() {
-      this.total = this.productosSeleccionados.reduce((total, producto) => {
-        return total + (producto.price * producto.cantidad);
-      }, 0);
-    }
-  
-    agregarProducto(producto: any) {
-      // Check if product is already in selected products
-      const existingProductIndex = this.productosSeleccionados.findIndex(p => p.id === producto.id);
-  
-      if (existingProductIndex !== -1) {
-        // Product already exists, check stock before incrementing
-        const currentStock = producto.stock || 0;
-        const currentQuantity = this.productosSeleccionados[existingProductIndex].cantidad;
-  
-        if (currentQuantity + 1 <= currentStock) {
-          this.productosSeleccionados[existingProductIndex].cantidad++;
-        } else {
-          Swal.fire({
-            icon: 'warning',
-            title: 'Stock Insuficiente',
-            text: `Solo quedan ${currentStock} unidades de ${producto.name} en stock.`
-          });
-        }
-      } else {
-        // New product, check stock before adding
-        if (producto.stock && producto.stock > 0) {
-          this.productosSeleccionados.push({
-            ...producto,
-            cantidad: 1
-          });
-        } else {
-          Swal.fire({
-            icon: 'warning',
-            title: 'Stock Agotado',
-            text: `El producto ${producto.name} no tiene stock disponible.`
-          });
-        }
-      }
-  
-      this.calcularTotal();
-    }
-    getImageUrl(imageName: string): string {
-      const baseUrl = 'https://db.buckapi.lat:8095/api/files/';
-      return `${baseUrl}${imageName}?token=YOUR_TOKEN_HERE`; // Asegúrate de reemplazar con el token correcto
   }
-      procesarPago() {
-        if (!this.metodoPago || !this.customer) {
-          Swal.fire({
-            title: 'Error',
-            text: 'Por favor complete todos los campos requeridos',
-            icon: 'error',
-            confirmButtonText: 'Ok'
-          });
-          return;
-        }
-      
+
+  this.calcularTotal();
+}  */ 
+  agregarProducto(producto: any) {
+    const existingProductIndex = this.productosSeleccionados.findIndex(p => p.id === producto.id);
+  
+    if (existingProductIndex !== -1) {
+      const currentStock = producto.stock || 0;
+      const currentQuantity = this.productosSeleccionados[existingProductIndex].cantidad;
+  
+      if (currentQuantity + 1 <= currentStock) {
+        this.productosSeleccionados[existingProductIndex].cantidad++;
+      } else {
         Swal.fire({
-          title: '¿Está seguro de procesar la venta?',
-          text: `Total a pagar: ₡${this.total.toFixed(2)}`,
           icon: 'warning',
-          showCancelButton: true,
-          confirmButtonColor: '#3085d6',
-          cancelButtonColor: '#d33',
-          confirmButtonText: 'Sí, procesar',
-          cancelButtonText: 'Cancelar'
-        }).then((result) => {
-          if (result.isConfirmed) {
-            const venta = {
-              customer: this.customer,
-              paymentMethod: this.metodoPago,
-              products: this.productosSeleccionados,
-              total: this.total,
-              idUser: this.currentUser.id,
-              unity: this.calculateTotalUnits(),
-              subTotal: this.subtotal.toString(),
-              iva: this.iva.toString(),
-              statusVenta: "completed",
-              descuento: "0",
-              metodoPago: this.metodoPago,
-              date: new Date().toISOString(),
-              hora: this.horaActual,
-              idProduct: JSON.stringify(this.productosSeleccionados),
-              
-            };
-      
-            // Llama a la función para procesar la venta y generar el código QR
-            this.processSaleWithQRCode(venta).then(() => {
-              // Aquí puedes refrescar la vista o realizar cualquier acción necesaria
-              Swal.fire({
-                title: '¡Venta exitosa!',
-                text: 'La venta ha sido procesada correctamente.',
-                icon: 'success',
-                confirmButtonText: 'Ok'
-              });
-              this.resetearVenta();
-              this.irAPaso(1);
-            }).catch((error: any) => { // Especifica el tipo de error
-              Swal.fire({
-                title: 'Error',
-                text: 'Hubo un problema al procesar la venta. Por favor, intente nuevamente.',
-                icon: 'error',
-                confirmButtonText: 'Ok'
-              });
-            });
-          }
+          title: 'Cantidad Insuficiente',
+          text: `No puedes agregar más de ${currentStock} unidades de ${producto.name}.`
         });
       }
-    
+    } else {
+      if (producto.stock && producto.stock > 0) {
+        this.productosSeleccionados.push({
+          ...producto,
+          cantidad: 1
+        });
+      } else {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Stock Agotado',
+          text: `El producto ${producto.name} no tiene stock disponible.`
+        });
+      }
+    }
+  
+    this.calcularTotal();
+  }   
  // Función para generar y subir el código QR
 
-/* processSaleWithQRCode(venta: any): Promise<void> {
-  return new Promise((resolve, reject) => {
-    const pb = new PocketBase('https://db.buckapi.lat:8095');
-
-    QRCode.toDataURL(`venta-${venta.id}`).then((qrCodeUrl) => {
-      const byteCharacters = atob(qrCodeUrl.split(',')[1]);
-      const byteArrays = [];
-      for (let offset = 0; offset < byteCharacters.length; offset++) {
-        const byte = byteCharacters.charCodeAt(offset);
-        byteArrays.push(byte);
-      }
-      const blob = new Blob([new Uint8Array(byteArrays)], { type: 'image/png' });
-      const file = new File([blob], `venta-${venta.id}.png`, { type: 'image/png' });
-
-      const ventaData = {
-        customer: venta.customer,
-        total: venta.total,
-        unity: venta.unity,
-        subTotal: venta.subTotal,
-        statusVenta: venta.statusVenta,
-        descuento: venta.descuento,
-        iva: venta.iva,
-        metodoPago: venta.metodoPago,
-        date: venta.date,
-        hora: venta.hora,
-        idProduct: venta.idProduct,
-        idUser: venta.idUser,
-        qrCode: file, // El archivo QR
-      };
-      pb.collection('ventas').create(ventaData).then((record) => {
-        console.log('Venta guardada exitosamente:', record);
-        resolve(); // Resuelve la promesa
-      }).catch((error) => {
-        console.error('Error al guardar la venta:', error);
-        reject(error); // Rechaza la promesa en caso de error
-      });
-    }).catch((error) => {
-      console.error('Error generando el código QR:', error);
-      reject(error); // Rechaza la promesa en caso de error
-    });
-  });
-} */
-    
   processSaleWithQRCode(venta: any): Promise<void> {
     return new Promise((resolve, reject) => {
       const pb = new PocketBase('https://db.buckapi.lat:8095');
@@ -427,26 +509,39 @@ filtrarProductos(termino: string) {
     });
   }
   
-    // Modify cantidad input to validate stock
-    onCantidadChange(producto: any) {
-      const currentStock = producto.stock || 0;
-      
-      if (producto.cantidad > currentStock) {
-        producto.cantidad = currentStock;
-        Swal.fire({
-          icon: 'warning',
-          title: 'Stock Insuficiente',
-          text: `Solo quedan ${currentStock} unidades de ${producto.name} en stock.`
-        });
-      }
+  // Modify cantidad input to validate stock
+  /* onCantidadChange(producto: any) {
+    const currentStock = producto.stock || 0;
+    
+    if (producto.unity > currentStock) {
+      producto.unity = currentStock;
+      Swal.fire({
+        icon: 'warning',
+        title: 'Stock Insuficiente',
+        text: `Solo quedan ${currentStock} unidades de ${producto.name} en stock.`
+      });
+    }
+
+    this.calcularTotal();
+  } */
+  onCantidadChange(producto: any) {
+    const currentStock = producto.stock || 0;
   
-      this.calcularTotal();
+    if (producto.cantidad > currentStock) {
+      producto.cantidad = currentStock; // Ajustar la cantidad al stock disponible
+      Swal.fire({
+        icon: 'warning',
+        title: 'Stock Insuficiente',
+        text: `Solo quedan ${currentStock} unidades de ${producto.name} en stock.`
+      });
     }
-   
-    // Funciones para navegar entre pasos
-    irAPaso(paso: number) {
-      this.pasoActual = paso;
-    }
+  
+    this.calcularTotal();
+  }
+  // Funciones para navegar entre pasos
+  irAPaso(paso: number) {
+    this.pasoActual = paso;
+  }
  
   actualizarFechaHora() {
     const ahora = new Date();
@@ -499,25 +594,25 @@ private calculateTotalUnits(): number {
   return this.productosSeleccionados.reduce((total, producto) => total + producto.cantidad, 0);
 }
 
-  
+
 private resetearVenta() {
   this.productosSeleccionados = [];
   this.customer = '';
   this.metodoPago = '';
   this.total = 0;
-  }
+}
 
-  private getCurrentUserInfo() {
-    const user = this.authPocketbase.getCurrentUser();
-    const userId = this.authPocketbase.getUserId();
+private getCurrentUserInfo() {
+  const user = this.authPocketbase.getCurrentUser();
+  const userId = this.authPocketbase.getUserId();
 
-    return {
-      userId,
-      userType: user?.type,
-      fullName: user?.full_name,
-      isAuthenticated: !!userId
-    };
-  }
+  return {
+    userId,
+    userType: user?.type,
+    fullName: user?.full_name,
+    isAuthenticated: !!userId
+  };
+}
 
 openCashModal() {
   this.showForm = true;

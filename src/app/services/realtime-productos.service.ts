@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import PocketBase from 'pocketbase';
+import { from, Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -64,4 +65,23 @@ export class RealtimeProductsService {
     this.pb.collection('productsInventory').unsubscribe('*');
     console.log('Desuscribiéndose de todos los cambios en tiempo real.');
   }
+// Método para actualizar el stock de un producto
+public actualizarStockProducto(productId: string, nuevoStock: number): Observable<any> {
+  const body = { stock: nuevoStock };
+
+  // Convierte la promesa en un Observable usando 'from'
+  return from(this.pb.collection('productsInventory').update(productId, body));
+}
+
+ // Método para obtener el stock de un producto
+ // Método para obtener el stock de un producto
+async obtenerStockProducto(productId: string): Promise<number> {
+  try {
+    const producto = await this.pb.collection('productsInventory').getOne(productId);
+    return producto['unity']; // Cambiado a notación de corchetes
+  } catch (error) {
+    console.error('Error al obtener el stock del producto:', error);
+    return 0; // Retorna 0 o maneja el error según sea necesario
+  }
+}
 }

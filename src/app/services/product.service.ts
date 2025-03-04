@@ -39,7 +39,7 @@ interface Product {
   price: number;
   idCategoria: string;
   description: string;
-  unity: number; // Change from string to number
+ /*  unity: number; */ // Change from string to number
   stock: number; // Change from string to number
   color: string;
   files: string[];

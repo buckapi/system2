@@ -1,8 +1,8 @@
 {
   "name": "Sistema de inventario y manejo de contabilidad",
   "short_name": "Sistema de inventario y manejo de contabilidad",
-  "theme_color": "#1976d2",
-  "background_color": "#fafafa",
+  "theme_color": "#fdeff1",
+  "background_color": "#fdeff1",
   "display": "standalone",
   "scope": "./",
   "start_url": "./",

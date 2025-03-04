@@ -70,7 +70,7 @@ export class ProductsComponent {
     idCategoria: '', // Include categorias
     description: '', // Include description
     files: [] , // Include files as an array
-    unity: 0,
+   /*  unity: 0, */
     stock: 0,
     color: '',
     codeBarra: ''
@@ -162,9 +162,9 @@ export class ProductsComponent {
     this.previewImage = 'assets/images/thumbs/setting-profile-img.jpg';
     // Set default values if needed
     this.addProductForm.patchValue({
-      unity: 1,
+     /*  unity: 1, */
       price: 0,
-      stock: 0,
+      stock: 1,
       color: '', 
       file: '',
       name: ''
@@ -244,7 +244,7 @@ export class ProductsComponent {
                   price: this.addProductForm.get('price')?.value,
                   idCategoria: this.addProductForm.get('idCategoria')?.value,
                   description: this.addProductForm.get('description')?.value,
-                  unity: this.addProductForm.get('unity')?.value,
+                  /* unity: this.addProductForm.get('unity')?.value, */
                   stock: this.addProductForm.get('stock')?.value,
                   color: this.addProductForm.get('color')?.value,
                   files: files,
@@ -267,7 +267,7 @@ export class ProductsComponent {
                   price: 0, 
                   idCategoria: '', 
                   description: '', 
-                  unity: 0,
+                  /* unity: 0, */
                   stock: 0,
                   color: '',
                   files: [],
