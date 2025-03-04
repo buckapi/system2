@@ -175,7 +175,7 @@ filtrarProductos(termino: string) {
   termino = termino.toLowerCase();
   this.productosFiltrados = this.productos.filter(producto => 
       producto.name.toLowerCase().includes(termino) || 
-      producto.codeBarra.toLowerCase().includes(termino) // Filtrar por código de barras
+      producto.barcode.toLowerCase().includes(termino) // Filtrar por código de barras
   );
   console.log('Productos filtrados:', this.productosFiltrados); // Para debugging
 }
@@ -229,10 +229,27 @@ if (this.productosSeleccionados.length === 0) {
 }
 
 calcularTotal() {
-this.total = this.productosSeleccionados.reduce((total, producto) => {
-return total + (producto.price * producto.cantidad);
-}, 0);
+  this.productosSeleccionados.forEach(producto => {
+    if (producto.cantidad > producto.stock) {
+      console.error(`La cantidad para ${producto.name} excede el stock disponible.`);
+      Swal.fire({
+        title: 'Error!',
+        text: `No hay suficiente stock para ${producto.name}. Solo quedan ${producto.stock} unidades.`,
+        icon: 'error',
+        confirmButtonText: 'Aceptar'
+      });
+      producto.cantidad = producto.stock; 
+      this.total = this.productosSeleccionados.reduce((total, producto) => {
+        return total + (producto.price * producto.cantidad);
+        }, 0);
+      // Ajustar la cantidad al stock disponible
+    }
+    // Aquí puedes agregar el cálculo total si es necesario
+  });
 }
+
+
+
 
 getImageUrl(imageName: string): string {
 const baseUrl = 'https://db.buckapi.lat:8095/api/files/';
@@ -351,6 +368,18 @@ this.productosSeleccionados.forEach(producto => {
 actualizarStockProductos() {
   this.productosSeleccionados.forEach(producto => {
     const nuevoStock = producto.stock - producto.cantidad; // Restar la cantidad vendida del stock actual
+
+    // Verificar que el nuevo stock no sea negativo
+    if (nuevoStock < 0) {
+      console.error(`No se puede actualizar el stock de ${producto.name}: stock insuficiente.`);
+      Swal.fire({
+        title: 'Error!',
+        text: `No hay suficiente stock para ${producto.name}.`,
+        icon: 'error',
+        confirmButtonText: 'Aceptar'
+      });
+      return; // Salir de la función si el stock es insuficiente
+    }
 
     // Llamada al servicio para actualizar el stock
     this.realtimeProducts.actualizarStockProducto(producto.id, nuevoStock).subscribe(

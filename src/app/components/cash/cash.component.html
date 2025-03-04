@@ -213,7 +213,8 @@
                                         <div>
                                         <strong>{{producto.name}}</strong>
                                         <br>
-                                        <small>Stock: {{producto.stock}}</small> <!-- Mostrar el stock disponible -->
+                                        <small>Stock: {{producto.stock}}</small>
+                                        <!-- <small>Código de barras: {{producto.codeBarra}}</small> --> <!-- Mostrar el stock disponible -->
                                         </div>
                                         <div>
                                         <span class="badge bg-primary">{{producto.price | currency}}</span>
@@ -249,10 +250,10 @@
                                             </thead>
                                             <tbody>
                                                 <tr *ngFor="let producto of productosSeleccionados">
-                                                    <td>{{producto.name}}</td>
+                                                    <td>{{producto.name}} {{producto.stock}}</td>
                                                     <td>
                                                         <input type="number" [(ngModel)]="producto.cantidad"
-                                                            (change)="calcularTotal()" min="1" class="form-control w-75">
+                                                        (change)="calcularTotal()" min="1" class="form-control w-75">
                                                     </td>
                                                     <td>₡ {{producto.price | number:'1.2-2'}}</td>
                                                     <td>₡ {{producto.price * producto.cantidad | number:'1.2-2'}}</td>

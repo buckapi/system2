@@ -24,6 +24,7 @@ export interface PocketBaseError {
 export interface Product {
   name: string;
   price: number;
+  barcode: string;
   idCategoria: string;
   description: string;
   unity: number; // Change from string to number
@@ -73,7 +74,8 @@ export class ProductsComponent {
    /*  unity: 0, */
     stock: 0,
     color: '',
-    codeBarra: ''
+    codeBarra: '',
+    barcode: ''
   };
   totalProductos: number = 0;
   productos: any[] = [];
@@ -171,8 +173,9 @@ export class ProductsComponent {
     });
   }
   }
-  generateBarcode(): string {
+  generateBarcode(): { barcode: string; canvas: HTMLCanvasElement } {
     const barcode = Math.random().toString(36).substr(2, 9);
+
     const canvas = document.createElement('canvas');
     JsBarcode(canvas, barcode, {
       format: "CODE128",
@@ -181,7 +184,7 @@ export class ProductsComponent {
       height: 250,
       displayValue: true
     });
-    return canvas.toDataURL('image/png'); // Regresa la imagen en formato base64
+    return { barcode, canvas };
   }
   onImageChange(event: any): void {
     const file = event.target.files[0];
@@ -195,108 +198,111 @@ export class ProductsComponent {
     }
   }
   async onSubmit() {
-      // Verificar si el formulario es válido
-      if (this.addProductForm.invalid) {
-          console.log('Formulario inválido', this.addProductForm.errors);
-          Swal.fire({
-              title: 'Error!',
-              text: 'Por favor complete todos los campos requeridos.',
-              icon: 'error',
-              confirmButtonText: 'Aceptar'
-          });
-          return;
-      }
-  
-      // Verificar si se ha seleccionado una imagen
-      if (!this.selectedImage) {
-          Swal.fire({
-              title: 'Error!',
-              text: 'Por favor, seleccione una imagen antes de guardar el producto.',
-              icon: 'error',
-              confirmButtonText: 'Aceptar'
-          });
-          return;
-      }
-  
-      const formData = new FormData();
-      formData.append('image', this.selectedImage); // Agregar la imagen al formData
-  
-      try {
-          // Intentar subir la imagen y crear el producto en una sola operación
-          let newImageRecord: any = await this.pb.collection('files').create(formData);
-  
-          if (newImageRecord) {
-              console.log('Imagen subida:', newImageRecord);
-  
-              const files: string[] = [
-                  this.apiUrl +
-                  '/api/files/' +
-                  newImageRecord.collectionId +
-                  '/' +
-                  newImageRecord.id +
-                  '/' +
-                  newImageRecord.image
-              ];
-  
-              // Crear el objeto del producto con la información necesaria
-              const productData = {
-                  name: this.addProductForm.get('name')?.value,
-                  price: this.addProductForm.get('price')?.value,
-                  idCategoria: this.addProductForm.get('idCategoria')?.value,
-                  description: this.addProductForm.get('description')?.value,
-                  /* unity: this.addProductForm.get('unity')?.value, */
-                  stock: this.addProductForm.get('stock')?.value,
-                  color: this.addProductForm.get('color')?.value,
-                  files: files,
-                  codeBarra: this.generateBarcode() // Asegúrate de que este método esté definido
-              };
-  
-              // Llamar al servicio para agregar el producto
-              await this.productService.createProduct(productData);
-  
-              Swal.fire({
-                  title: 'Éxito!',
-                  text: 'Producto guardado con éxito!',
-                  icon: 'success',
-                  confirmButtonText: 'Aceptar'
-              });
-  
-              // Restablecer el objeto del producto
-              this.product = { 
-                  name: '', 
-                  price: 0, 
-                  idCategoria: '', 
-                  description: '', 
-                  /* unity: 0, */
-                  stock: 0,
-                  color: '',
-                  files: [],
-                  codeBarra: ''
-              }; 
-              this.selectedImage = null; // Restablecer la imagen seleccionada
-              this.productos = this.global.getProductos(); // Refrescar la lista de productos
-          } else {
-              Swal.fire({
-                  title: 'Error!',
-                  text: 'La imagen no se subió correctamente.',
-                  icon: 'error',
-                  confirmButtonText: 'Aceptar'
-              });
-          }
-          this.addProductForm.reset();
-          this.showForm = false;
-          this.isEditing = false;
-      } catch (error) {
-          Swal.fire({
-              title: 'Error!',
-              text: 'No se pudo agregar el producto.',
-              icon: 'error',
-              confirmButtonText: 'Aceptar'
-          });
-          console.error('Error al agregar el producto:', error);
-      }
-      console.log(this.addProductForm.value);
-  }
+    // Verificar si el formulario es válido
+    if (this.addProductForm.invalid) {
+        console.log('Formulario inválido', this.addProductForm.errors);
+        Swal.fire({
+            title: 'Error!',
+            text: 'Por favor complete todos los campos requeridos.',
+            icon: 'error',
+            confirmButtonText: 'Aceptar'
+        });
+        return;
+    }
+
+    // Verificar si se ha seleccionado una imagen
+    if (!this.selectedImage) {
+        Swal.fire({
+            title: 'Error!',
+            text: 'Por favor, seleccione una imagen antes de guardar el producto.',
+            icon: 'error',
+            confirmButtonText: 'Aceptar'
+        });
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append('image', this.selectedImage); // Agregar la imagen al formData
+
+    try {
+        // Intentar subir la imagen y crear el producto en una sola operación
+        let newImageRecord: any = await this.pb.collection('files').create(formData);
+
+        if (newImageRecord) {
+            console.log('Imagen subida:', newImageRecord);
+
+            const files: string[] = [
+                this.apiUrl +
+                '/api/files/' +
+                newImageRecord.collectionId +
+                '/' +
+                newImageRecord.id +
+                '/' +
+                newImageRecord.image
+            ];
+
+            // Generar el código de barras una sola vez
+            const { barcode, canvas } = this.generateBarcode();
+
+            // Crear el objeto del producto con la información necesaria
+            const productData = {
+                name: this.addProductForm.get('name')?.value,
+                price: this.addProductForm.get('price')?.value,
+                idCategoria: this.addProductForm.get('idCategoria')?.value,
+                description: this.addProductForm.get('description')?.value,
+                barcode: barcode, // Usar el código de barras generado
+                stock: this.addProductForm.get('stock')?.value,
+                color: this.addProductForm.get('color')?.value,
+                files: files,
+                codeBarra: canvas.toDataURL() // Usar el canvas convertido a URL
+            };
+
+            // Llamar al servicio para agregar el producto
+            await this.productService.createProduct(productData);
+
+            Swal.fire({
+                title: 'Éxito!',
+                text: 'Producto guardado con éxito!',
+                icon: 'success',
+                confirmButtonText: 'Aceptar'
+            });
+
+            // Restablecer el objeto del producto
+            this.product = { 
+                barcode: '',
+                name: '', 
+                price: 0, 
+                idCategoria: '', 
+                description: '', 
+                stock: 0,
+                color: '',
+                files: [],
+                codeBarra: ''
+            }; 
+            this.selectedImage = null; // Restablecer la imagen seleccionada
+            this.productos = this.global.getProductos(); // Refrescar la lista de productos
+        } else {
+            Swal.fire({
+                title: 'Error!',
+                text: 'La imagen no se subió correctamente.',
+                icon: 'error',
+                confirmButtonText: 'Aceptar'
+            });
+        }
+        this.addProductForm.reset();
+        this.showForm = false;
+        this.isEditing = false;
+    } catch (error) {
+        Swal.fire({
+            title: 'Error!',
+            text: 'No se pudo agregar el producto.',
+            icon: 'error',
+            confirmButtonText: 'Aceptar'
+        });
+        console.error('Error al agregar el producto:', error);
+    }
+    console.log(this.addProductForm.value);
+}
     deleteProduct(productId: string) {
     Swal.fire({
       title: '¿Está seguro?',
