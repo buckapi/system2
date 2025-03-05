@@ -22,45 +22,10 @@
       <!-- Filtro de busqueda -->
       <div class="card mt-24">
         <div class="card-body">
-          <!-- <div class="mb-20 flex-between flex-wrap gap-8" [hidden]="showForm">
-            <h4 class="mb-0">Filtros de búsqueda</h4>
-            <div class="flex-align gap-16">
-               <button type="button" class="toggle-btn d-xl-none d-flex text-26 text-gray-500"><i class="ph ph-list"></i></button>
-            
-              <form action="index.html#" class="w-350 d-sm-block d-none">
-                  <div class="position-relative">
-                      <button type="submit" class="input-icon text-xl d-flex text-gray-100 pointer-event-none"><i class="ph ph-magnifying-glass"></i></button> 
-                      <input type="text" class="form-control ps-40 h-40 border-transparent focus-border-main-600 bg-main-50 rounded-pill placeholder-15" placeholder="Buscar producto por nombre o código" [(ngModel)]="searchQuery" (input)="onFilterChange()" name="search">
-                    </div>
-              </form>
-          </div>
-            <div class="flex-align gap-8 flex-wrap">
-              <div class="flex-align text-gray-500 text-13 border border-gray-100 rounded-4 ps-8 focus-border-main-600">
-                <span class="text-lg"><i class="ph ph-layout"></i></span>
-                <select [(ngModel)]="selectedCategory" (change)="onFilterChange()">
-                  <option value="">Ver todas</option>
-                  <option *ngFor="let category of (realtimeCategorias.categorias$ | async)" [value]="category.id">
-                    {{ category.name }}
-                  </option>
-                </select>
-              </div>
-              <div class="position-relative text-gray-500 flex-align gap-4 text-13">
-                <span class="text-inherit">Ordenar por: </span>
-                <div
-                  class="flex-align text-gray-500 text-13 border border-gray-100 rounded-4 ps-8 focus-border-main-600">
-                  <span class="text-lg"><i class="ph ph-funnel-simple"></i></span>
-                  <select class="form-control px-8 py-12 border-0 text-inherit rounded-4 text-center">
-                    <option value="0" selected>Ver todos</option>
-                    <option value="1" selected>Popular</option>
-                    <option value="1">menor precio</option>
-                    <option value="1">mayor precio</option>
-                    <option value="1">menor stock</option>
-                    <option value="1">mayor stock</option>
-                  </select>
-                </div>
-              </div>
-            </div>
-          </div> -->
+<!--           <button (click)="updateProductBarcodes()">Actualizar Códigos de Barras</button>
+ -->
+<!--  <button (click)="optimizeAndUpdateImages()">Optimizar y Actualizar Imágenes</button>
+ -->
 
           <div class="row g-20" [hidden]="showForm">
             <div class="col-xxl-3 col-lg-4 col-sm-6" *ngFor="let product of (realtimeProducts.products$ | async); let i = index">
@@ -118,8 +83,6 @@
               </div>
             </div>
           </div>
-
-
         </div>
       </div>
 

@@ -303,6 +303,45 @@ export class ProductsComponent {
     }
     console.log(this.addProductForm.value);
 }
+async updateProductBarcodes() {
+  try {
+    // 1. Obtener la lista completa de productos desde PocketBase
+    const products = await this.pb.collection('productsInventory').getFullList(); 
+
+    for (let product of products) {
+      // 2. Generar un código de barras único para cada producto
+      const { barcode, canvas } = this.generateBarcode();
+
+      // 3. Preparar los datos para actualizar el producto
+      const updatedProductData = {
+        barcode: barcode, // Agregar el código de barras generado
+        codeBarra: canvas.toDataURL(), // Agregar la imagen en formato base64
+      };
+
+      // 4. Actualizar el producto con el nuevo código de barras usando el método de actualización de PocketBase
+      const recordId = product.id; // ID del producto a actualizar
+      const record = await this.pb.collection('productsInventory').update(recordId, updatedProductData);
+
+      console.log(`Producto ${product.id} actualizado con éxito`, record);
+    }
+
+    Swal.fire({
+      title: 'Éxito!',
+      text: 'Los productos han sido actualizados con los nuevos códigos de barras.',
+      icon: 'success',
+      confirmButtonText: 'Aceptar'
+    });
+  } catch (error) {
+    console.error('Error al actualizar los productos:', error);
+    Swal.fire({
+      title: 'Error!',
+      text: 'Hubo un problema al actualizar los productos. Intenta nuevamente.',
+      icon: 'error',
+      confirmButtonText: 'Aceptar'
+    });
+  }
+}
+
     deleteProduct(productId: string) {
     Swal.fire({
       title: '¿Está seguro?',
@@ -421,4 +460,115 @@ try {
   throw error;
 }
 }
+
+async optimizeAndUpdateImages() {
+  try {
+    // Paso 1: Obtener todos los productos de la colección productsInventory
+    const products = await this.pb.collection('productsInventory').getFullList();
+
+    // Paso 2: Iterar sobre cada producto y optimizar su imagen
+    for (let product of products) {
+      if (product['files'] && product['files'].length > 0) {
+        const imageUrl = product['files'][0]; // URL de la imagen actual desde la colección 'files'
+        
+        // Paso 3: Descargar la imagen desde la URL de la colección 'files'
+        const img = await this.loadImageFromUrl(imageUrl);
+
+        // Paso 4: Optimizar la imagen utilizando Canvas
+        const optimizedImage = await this.optimizeImage(img);
+
+        // Paso 5: Convertir la imagen optimizada a un formato adecuado para PocketBase (base64 -> Blob)
+        const formData = new FormData();
+        const blob = this.dataURLtoBlob(optimizedImage);
+        formData.append('file', blob, 'optimized-image.jpg');
+
+        // Paso 6: Subir la imagen optimizada a PocketBase (colección 'files')
+        const response = await this.pb.collection('files').create(formData);
+
+        // Paso 7: Actualizar el producto con la nueva URL de la imagen optimizada
+        const updatedProductData = {
+          files: [response['file']] // Suponiendo que 'file' es el nombre de la imagen subida
+        };
+
+        // Actualizar el producto en PocketBase
+        await this.pb.collection('productsInventory').update(product.id, updatedProductData);
+
+        console.log(`Producto ${product['name']} actualizado con la imagen optimizada.`);
+      }
+    }
+
+    Swal.fire({
+      title: 'Éxito!',
+      text: 'Las imágenes han sido optimizadas y actualizadas con éxito.',
+      icon: 'success',
+      confirmButtonText: 'Aceptar'
+    });
+  } catch (error) {
+    console.error('Error al optimizar las imágenes:', error);
+    Swal.fire({
+      title: 'Error!',
+      text: 'Hubo un problema al optimizar las imágenes. Intenta nuevamente.',
+      icon: 'error',
+      confirmButtonText: 'Aceptar'
+    });
+  }
+}
+
+// Función para descargar una imagen desde una URL
+loadImageFromUrl(url: string): Promise<HTMLImageElement> {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.crossOrigin = 'Anonymous'; // Asegurarnos de que no haya problemas con CORS si es necesario
+    img.onload = () => resolve(img);
+    img.onerror = (err) => reject(err);
+    img.src = url;
+  });
+}
+
+// Función para optimizar la imagen usando Canvas
+async optimizeImage(img: HTMLImageElement): Promise<string> {
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d');
+
+  // Ajustar las dimensiones de la imagen
+  const MAX_WIDTH = 800;  // Cambia el valor según sea necesario
+  const MAX_HEIGHT = 800; // Cambia el valor según sea necesario
+  let width = img.width;
+  let height = img.height;
+
+  if (width > height) {
+    if (width > MAX_WIDTH) {
+      height = (height * MAX_WIDTH) / width;
+      width = MAX_WIDTH;
+    }
+  } else {
+    if (height > MAX_HEIGHT) {
+      width = (width * MAX_HEIGHT) / height;
+      height = MAX_HEIGHT;
+    }
+  }
+
+  // Establecer las dimensiones del canvas
+  canvas.width = width;
+  canvas.height = height;
+
+  // Dibujar la imagen en el canvas con las nuevas dimensiones
+  ctx?.drawImage(img, 0, 0, width, height);
+
+  // Convertir la imagen optimizada a base64 con calidad reducida (por ejemplo, 0.7 para compresión)
+  return canvas.toDataURL('image/jpeg', 0.7); // Puedes ajustar la calidad según lo necesites
+}
+
+// Función para convertir base64 a Blob (para que pueda ser subida a PocketBase)
+dataURLtoBlob(dataURL: string): Blob {
+  const byteString = atob(dataURL.split(',')[1]);
+  const mimeString = dataURL.split(',')[0].split(':')[1].split(';')[0];
+  const ab = new ArrayBuffer(byteString.length);
+  const ia = new Uint8Array(ab);
+  for (let i = 0; i < byteString.length; i++) {
+    ia[i] = byteString.charCodeAt(i);
+  }
+  return new Blob([ab], { type: mimeString });
+}
+
 }

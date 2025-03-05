@@ -55,7 +55,7 @@ ventas: any[] = [];
   loading: boolean = true;
   totalIngresos: number = 0;
   totalStock: number = 0;
-
+  ventasDelDia: any[] = [];
   constructor(
     public global: GlobalService,
     public auth: AuthPocketbaseService,
@@ -65,8 +65,7 @@ ventas: any[] = [];
     public realtimeEmployees: RealtimeEmployeesService,
     public realtimeVentas: RealtimeVentasService
   ){    
-        
-         this.dataApiService.getAllProducts();  
+       this.dataApiService.getAllProducts();  
   }
 
   
@@ -82,10 +81,13 @@ ventas: any[] = [];
 
     this.realtimeVentas.ventas$.subscribe(ventas => {
       this.ventas = ventas;
+      // Ordenar las ventas de forma decreciente
+      this.ventas.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+      
       if (ventas) {
         this.totalIngresos = ventas.reduce((total, venta) => total + (venta.total || 0), 0);
       }
-    });
+    });   
   
   }
 
@@ -99,5 +101,12 @@ ventas: any[] = [];
   }
   calculateTotalStock(): number {
     return this.products.reduce((total, product) => total + (product.quantity || 0), 0);
+}
+filtrarVentasDelDia(ventas: any[]): any[] {
+  const hoy = new Date().toLocaleDateString(); // Obtiene la fecha actual en formato local
+  return ventas.filter(venta => {
+    const fechaVenta = new Date(venta.date).toLocaleDateString(); // Convierte la fecha de la venta a formato local
+    return fechaVenta === hoy; // Filtra las ventas del día
+  });
 }
 }

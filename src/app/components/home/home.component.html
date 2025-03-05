@@ -69,7 +69,7 @@
                         <div class="card">
                             <div class="card-body">
                                 <div class="flex-between gap-8 mb-24">
-                                    <span class="flex-shrink-0 w-48 h-48 flex-center rounded-circle bg-purple-600 text-white text-2xl"><i class="ph-fill ph-certificate"></i></span>
+                                    <span class="flex-shrink-0 w-48 h-48 flex-center rounded-circle bg-purple-600 text-white text-2xl"><i class="ph-fill ph-shopping-cart"></i></span>
                                     <div id="course-progress" class="remove-tooltip-title rounded-tooltip-value"></div>
                                 </div>
                                 <h4 class="mb-2">
@@ -79,7 +79,7 @@
                                     <ng-template #loading>
                                         <span>Cargando...</span>
                                     </ng-template>
-                                    <span class="text-gray-300" (click)="global.setRoute('cash')" style="cursor: pointer;">Ventas</span>
+                                    <span class="text-gray-300" (click)="global.setRoute('cash')" style="cursor: pointer;">Total de Ventas</span>
                                     </h4>
                             </div>
                         </div>
@@ -99,7 +99,7 @@
                                     <ng-template #loading>
                                         <span>Cargando...</span>
                                     </ng-template>
-                                    <span class="text-gray-300" (click)="global.setRoute('contabilidad')" style="cursor: pointer;">Ingresos</span>
+                                    <span class="text-gray-300" (click)="global.setRoute('contabilidad')" style="cursor: pointer;">Total de Ingresos</span>
                                     </h4>
                             </div>
                         </div>
@@ -118,18 +118,9 @@
                     <div class="card h-100">
                         <div class="card-body">
                             <div class="mb-20 flex-between flex-wrap gap-8">
-                                <h4 class="mb-0">Ventas del Dia</h4>
+                                <h4 class="mb-0">Ventas realizadas</h4>
                                 <div class="flex-align gap-16 flex-wrap">
-                                   <!--      <div class="flex-align flex-wrap gap-16">
-                                            <div class="flex-align flex-wrap gap-8">
-                                                <span class="w-8 h-8 rounded-circle bg-main-600"></span>
-                                                <span class="text-13 text-gray-600">Ventas</span>
-                                            </div>
-                                            <div class="flex-align flex-wrap gap-8">
-                                                <span class="w-8 h-8 rounded-circle bg-main-two-600"></span>
-                                                <span class="text-13 text-gray-600">Ingresos</span>
-                                            </div>
-                                        </div> -->
+                                  
                                     <select class="form-select form-control text-13 px-8 pe-24 py-8 rounded-8 w-auto">
                                         <option value="1">Año</option>
                                         <option value="1">Mes</option>
@@ -153,22 +144,23 @@
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            <ng-container *ngFor="let venta of (realtimeVentas.ventas$ | async)">
-                                                <tr>
-                                                    <td>{{venta.date | date:'short'}}</td>  
-                                                     <td>{{venta.customer}}</td>
-                                                     <td>{{venta.idProduct && venta.idProduct.length > 0 ? venta.idProduct[0].name : ''}}</td>                                                     
-                                                     <td>₡ {{venta.total | number:'1.2-2'}}</td>                                      
-                                                    <td>
-                                                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#openSaleDetailsModal" (click)="openSaleDetailsModal(venta)">Ver</button>
-                                                    </td>
-                                                </tr>
-                                            </ng-container>
                                             <ng-template #loadingSales>
                                                 <tr>
                                                     <td colspan="3" class="text-center">Cargando ventas...</td>
                                                 </tr>
                                             </ng-template>
+                                            <ng-container *ngFor="let venta of (realtimeVentas.ventas$ | async)?.slice(-5)">
+                                                <tr>
+                                                    <td>{{venta.date | date:'short'}}</td>  
+                                                    <td>{{venta.customer}}</td>
+                                                    <td>{{venta.idProduct && venta.idProduct.length > 0 ? venta.idProduct[0].name : ''}}</td>                                                     
+                                                    <td>₡ {{venta.total | number:'1.2-2'}}</td>                                      
+                                                    <td>
+                                                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#openSaleDetailsModal" (click)="openSaleDetailsModal(venta)">Ver</button>
+                                                    </td>
+                                                </tr>
+                                            </ng-container>
+                                            
                                         </tbody>
                                     </table>
                                 </div>
