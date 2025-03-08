@@ -15,6 +15,7 @@ import { BarcodeComponent } from '../barcode/barcode.component';
 import JsBarcode from 'jsbarcode'; // Use default import
 import { ProductService } from '../../services/product.service';
 import PocketBase from 'pocketbase';
+import Compressor from 'compressorjs';
 
 
 export interface PocketBaseError {
@@ -50,11 +51,11 @@ export class ProductsComponent {
   private pb: PocketBase;
   private apiUrl = 'https://db.buckapi.lat:8095';
   showForm = false;
+  isEditing = false;
   /* productForm: FormGroup; */
   previewImage: string = 'assets/images/thumbs/setting-profile-img.jpg';
   products: any[] = []; // Changed Product to any[] since Product type is not defined
   products$: any;
-  isEditing = false;
   currentProductId: string = '';
   showFilter = false;
   ventas: any[] = [];
@@ -71,7 +72,6 @@ export class ProductsComponent {
     idCategoria: '', // Include categorias
     description: '', // Include description
     files: [] , // Include files as an array
-   /*  unity: 0, */
     stock: 0,
     color: '',
     codeBarra: '',
@@ -112,8 +112,8 @@ export class ProductsComponent {
       color: [''],
       codeBarra: ['']
     });
-  
-    
+    this.showForm = false;
+    this.isEditing = false;    
   }
   ngOnInit() {
     this.loadProducts();
@@ -164,7 +164,6 @@ export class ProductsComponent {
     this.previewImage = 'assets/images/thumbs/setting-profile-img.jpg';
     // Set default values if needed
     this.addProductForm.patchValue({
-     /*  unity: 1, */
       price: 0,
       stock: 1,
       color: '', 
@@ -186,18 +185,188 @@ export class ProductsComponent {
     });
     return { barcode, canvas };
   }
+
+
   onImageChange(event: any): void {
-    const file = event.target.files[0];
-    if (file) {
-      this.selectedImage = file;
-      const reader = new FileReader();
-      reader.onload = (e: any) => {
-        this.selectedImagePrev = e.target.result;
-      };
-      reader.readAsDataURL(file);
-    }
+      const file = event.target.files[0];
+      if (file) {
+          this.selectedImage = file;
+  
+          // Comprimir la imagen antes de mostrarla o subirla
+          new Compressor(file, {
+              quality: 0.6, // Ajusta la calidad (de 0 a 1, donde 1 es la mejor calidad)
+              maxWidth: 800, // Redimensiona la imagen si su ancho es mayor a este valor
+              maxHeight: 800, // Redimensiona la imagen si su altura es mayor a este valor
+              success: (compressedFile: Blob) => {
+                  // Crear un nuevo objeto File con las propiedades necesarias
+                  const fileName = file.name;
+                  const fileType = file.type;
+                  const fileLastModified = file.lastModified;
+  
+                  const newFile = new File([compressedFile], fileName, {
+                      type: fileType,
+                      lastModified: fileLastModified
+                  });
+  
+                  // Después de comprimir la imagen, crea la vista previa
+                  const reader = new FileReader();
+                  reader.onload = (e: any) => {
+                      this.selectedImagePrev = e.target.result; // Imagen optimizada para la vista previa
+                  };
+                  reader.readAsDataURL(newFile);
+  
+                  this.selectedImage = newFile; // Usar el nuevo objeto File para subir
+              },
+              error: (err: any) => {
+                  console.error('Error al comprimir la imagen', err);
+              }
+          });
+      }
   }
+  
+  
   async onSubmit() {
+      // Verificar si el formulario es válido
+      if (this.addProductForm.invalid) {
+          console.log('Formulario inválido', this.addProductForm.errors);
+          Swal.fire({
+              title: 'Error!',
+              text: 'Por favor complete todos los campos requeridos.',
+              icon: 'error',
+              confirmButtonText: 'Aceptar'
+          });
+          return;
+      }
+  
+      // Verificar si se ha seleccionado una imagen
+      if (!this.selectedImage) {
+          Swal.fire({
+              title: 'Error!',
+              text: 'Por favor, seleccione una imagen antes de guardar el producto.',
+              icon: 'error',
+              confirmButtonText: 'Aceptar'
+          });
+          return;
+      }
+  
+      const formData = new FormData();
+      formData.append('image', this.selectedImage); // Agregar la imagen comprimida al formData
+  
+      try {
+          // Intentar subir la imagen y crear el producto en una sola operación
+          let newImageRecord: any = await this.pb.collection('files').create(formData);
+  
+          if (newImageRecord) {
+              console.log('Imagen subida:', newImageRecord);
+  
+              const files: string[] = [
+                  this.apiUrl +
+                  '/api/files/' +
+                  newImageRecord.collectionId +
+                  '/' +
+                  newImageRecord.id +
+                  '/' +
+                  newImageRecord.image
+              ];
+  
+              // Generar el código de barras una sola vez
+              const { barcode, canvas } = this.generateBarcode();
+  
+              // Crear el objeto del producto con la información necesaria
+              const productData = {
+                  name: this.addProductForm.get('name')?.value,
+                  price: this.addProductForm.get('price')?.value,
+                  idCategoria: this.addProductForm.get('idCategoria')?.value,
+                  description: this.addProductForm.get('description')?.value,
+                  barcode: barcode, // Usar el código de barras generado
+                  stock: this.addProductForm.get('stock')?.value,
+                  color: this.addProductForm.get('color')?.value,
+                  files: files,
+                  codeBarra: canvas.toDataURL() // Usar el canvas convertido a URL
+              };
+  
+              // Llamar al servicio para agregar el producto
+              await this.productService.createProduct(productData);
+  
+              Swal.fire({
+                  title: 'Éxito!',
+                  text: 'Producto guardado con éxito!',
+                  icon: 'success',
+                  confirmButtonText: 'Aceptar'
+              });
+  
+              // Restablecer el objeto del producto
+              this.product = { 
+                  barcode: '',
+                  name: '', 
+                  price: 0, 
+                  idCategoria: '', 
+                  description: '', 
+                  stock: 0,
+                  color: '',
+                  files: [],
+                  codeBarra: ''
+              }; 
+              this.selectedImage = null; // Restablecer la imagen seleccionada
+              this.productos = this.global.getProductos(); // Refrescar la lista de productos
+          } else {
+              Swal.fire({
+                  title: 'Error!',
+                  text: 'La imagen no se subió correctamente.',
+                  icon: 'error',
+                  confirmButtonText: 'Aceptar'
+              });
+          }
+          this.addProductForm.reset();
+          this.showForm = false;
+          this.isEditing = false;
+      } catch (error) {
+          Swal.fire({
+              title: 'Error!',
+              text: 'No se pudo agregar el producto.',
+              icon: 'error',
+              confirmButtonText: 'Aceptar'
+          });
+          console.error('Error al agregar el producto:', error);
+      }
+      console.log(this.addProductForm.value);
+  }
+  
+// Método para actualizar un producto
+ async updateProduct(productId: string) {
+  // Verificar si el formulario es válido
+  if (this.addProductForm.invalid) {
+      console.log('Formulario inválido', this.addProductForm.errors);
+      Swal.fire({
+          title: 'Error!',
+          text: 'Por favor complete todos los campos requeridos.',
+          icon: 'error',
+          confirmButtonText: 'Aceptar'
+      });
+      return;
+  }
+
+  // Obtener los datos del producto
+  const product = await this.productService.getProductById(productId);
+  
+  // Cargar los datos del producto en el formulario
+  this.addProductForm.patchValue({
+      name: product.name,
+      price: product.price,
+      idCategoria: product.idCategoria,
+      description: product.description,
+      stock: product.stock,
+      color: product.color,
+      files: product.files,
+      codeBarra: product.codeBarra
+  });
+
+  // Mostrar el formulario de edición
+  this.showForm = true; // Asegúrate de que esta variable controle la visibilidad del formulario
+  this.isEditing = true; // Indica que estamos en modo de edición
+
+} 
+/* async updateProduct(productId: string) {
     // Verificar si el formulario es válido
     if (this.addProductForm.invalid) {
         console.log('Formulario inválido', this.addProductForm.errors);
@@ -210,100 +379,92 @@ export class ProductsComponent {
         return;
     }
 
-    // Verificar si se ha seleccionado una imagen
-    if (!this.selectedImage) {
-        Swal.fire({
-            title: 'Error!',
-            text: 'Por favor, seleccione una imagen antes de guardar el producto.',
-            icon: 'error',
-            confirmButtonText: 'Aceptar'
-        });
-        return;
-    }
+    // Obtener los datos del producto
+    const product = await this.productService.getProductById(productId);
+    
+    // Cargar los datos del producto en el formulario
+    this.addProductForm.patchValue({
+        name: product.name,
+        price: product.price,
+        idCategoria: product.idCategoria,
+        description: product.description,
+        stock: product.stock,
+        color: product.color,
+        files: product.files,
+        codeBarra: product.codeBarra
+    });
 
-    const formData = new FormData();
-    formData.append('image', this.selectedImage); // Agregar la imagen al formData
+    // Obtener los datos actualizados del formulario
+    const productData = {
+        name: this.addProductForm.get('name')?.value,
+        price: this.addProductForm.get('price')?.value,
+        idCategoria: this.addProductForm.get('idCategoria')?.value,
+        description: this.addProductForm.get('description')?.value,
+        stock: this.addProductForm.get('stock')?.value,
+        color: this.addProductForm.get('color')?.value,
+        files: this.addProductForm.get('files')?.value,
+        codeBarra: this.addProductForm.get('codeBarra')?.value
+    };
 
     try {
-        // Intentar subir la imagen y crear el producto en una sola operación
-        let newImageRecord: any = await this.pb.collection('files').create(formData);
-
-        if (newImageRecord) {
-            console.log('Imagen subida:', newImageRecord);
-
-            const files: string[] = [
-                this.apiUrl +
-                '/api/files/' +
-                newImageRecord.collectionId +
-                '/' +
-                newImageRecord.id +
-                '/' +
-                newImageRecord.image
-            ];
-
-            // Generar el código de barras una sola vez
-            const { barcode, canvas } = this.generateBarcode();
-
-            // Crear el objeto del producto con la información necesaria
-            const productData = {
-                name: this.addProductForm.get('name')?.value,
-                price: this.addProductForm.get('price')?.value,
-                idCategoria: this.addProductForm.get('idCategoria')?.value,
-                description: this.addProductForm.get('description')?.value,
-                barcode: barcode, // Usar el código de barras generado
-                stock: this.addProductForm.get('stock')?.value,
-                color: this.addProductForm.get('color')?.value,
-                files: files,
-                codeBarra: canvas.toDataURL() // Usar el canvas convertido a URL
-            };
-
-            // Llamar al servicio para agregar el producto
-            await this.productService.createProduct(productData);
-
-            Swal.fire({
-                title: 'Éxito!',
-                text: 'Producto guardado con éxito!',
-                icon: 'success',
-                confirmButtonText: 'Aceptar'
-            });
-
-            // Restablecer el objeto del producto
-            this.product = { 
-                barcode: '',
-                name: '', 
-                price: 0, 
-                idCategoria: '', 
-                description: '', 
-                stock: 0,
-                color: '',
-                files: [],
-                codeBarra: ''
-            }; 
-            this.selectedImage = null; // Restablecer la imagen seleccionada
-            this.productos = this.global.getProductos(); // Refrescar la lista de productos
-        } else {
-            Swal.fire({
-                title: 'Error!',
-                text: 'La imagen no se subió correctamente.',
-                icon: 'error',
-                confirmButtonText: 'Aceptar'
-            });
-        }
-        this.addProductForm.reset();
-        this.showForm = false;
-        this.isEditing = false;
+        // Actualizar el producto en el servicio
+        await this.productService.updateProduct(productId, productData);
+        Swal.fire({
+            title: 'Éxito!',
+            text: 'Producto actualizado con éxito!',
+            icon: 'success',
+            confirmButtonText: 'Aceptar'
+        });
+        // Manejar la respuesta y restablecer el formulario si es necesario
     } catch (error) {
+        console.error('Error al actualizar el producto:', error);
         Swal.fire({
             title: 'Error!',
-            text: 'No se pudo agregar el producto.',
+            text: 'No se pudo actualizar el producto.',
             icon: 'error',
             confirmButtonText: 'Aceptar'
         });
-        console.error('Error al agregar el producto:', error);
     }
-    console.log(this.addProductForm.value);
+    // Mostrar el formulario de edición
+  this.showForm = true; // Asegúrate de que esta variable controle la visibilidad del formulario
+  this.isEditing = true; // Indica que estamos en modo de edición
+
+} */
+  async onEdit(productId: string) {
+  // Verifica que productId no sea null o undefined
+  if (!productId) {
+      console.error('ID del producto no válido');
+      return;
+  }
+  console.log('ID del producto:', productId); // Verificar el ID
+  // Obtener los datos del producto
+  const product = await this.productService.getProductById(productId);
+
+  // Cargar los datos del producto en el formulario
+  this.addProductForm.patchValue({
+      name: product.name,
+      price: product.price,
+      idCategoria: product.idCategoria,
+      description: product.description,
+      stock: product.stock,
+      color: product.color,
+      files: product.files,
+  });
+  // Mostrar la imagen existente
+if (product.files && product.files.length > 0) {
+  this.selectedImagePrev = product.files[0]; // Asumiendo que 'files' es un array y quieres mostrar la primera imagen
+} else {
+  this.selectedImagePrev = ''; // O un valor por defecto si no hay imágenes
 }
-async updateProductBarcodes() {
+  // Mostrar la imagen existente
+  this.selectedImagePrev = product.files[0]; // Asumiendo que 'files' es un array y quieres mostrar la primera imagen
+
+  // Mostrar el formulario de edición
+  this.showForm = true; // Asegúrate de que esta variable controle la visibilidad del formulario
+  this.isEditing = true; // Indica que estamos en modo de edición
+}
+    
+  async updateProductBarcodes() {
   try {
     // 1. Obtener la lista completa de productos desde PocketBase
     const products = await this.pb.collection('productsInventory').getFullList(); 
@@ -405,159 +566,7 @@ async updateProductBarcodes() {
     this.imagePreview = '';
   }
  
-  onImageSelect(event: any) {
-    const input = event.target as HTMLInputElement;
-    if (input?.files?.length) {
-      this.selectedFile = input.files[0];
-      const reader = new FileReader();
-      reader.onload = (e: any) => {
-        this.imagePreview = e.target.result; // For preview
-      };
-      reader.readAsDataURL(this.selectedFile);
-    }
-  }
 
-async uploadImageToServer(): Promise<{ url: string }> {
-try {
-  if (!this.selectedFile) {
-    throw new Error('No image selected');
-  }
-
-  const formData = new FormData();
-  formData.append('file', this.selectedFile);
-
-  const response = await this.uploadService.pb.collection('files').create(formData);
-
-  if (response && response['file']) {
-    return { url: this.uploadService.pb.files.getUrl(response, response['file']) };
-  } else {
-    throw new Error('Failed to upload image');
-  }
-} catch (error) {
-  console.error('Error uploading image:', error);
-  throw error;
-}
-}
-
-async uploadImageToServerCorrected(): Promise<{ url: string }> {
-try {
-  if (!this.selectedFile) {
-    throw new Error('No image selected');
-  }
-
-  const formData = new FormData();
-  formData.append('file', this.selectedFile);
-
-  const response = await this.uploadService.pb.collection('files').create(formData);
-
-  if (response && response['file']) {
-    return { url: this.uploadService.pb.files.getUrl(response, response['file']) };
-  } else {
-    throw new Error('Failed to upload image');
-  }
-} catch (error) {
-  console.error('Error uploading image:', error);
-  throw error;
-}
-}
-
-async optimizeAndUpdateImages() {
-  try {
-    // Paso 1: Obtener todos los productos de la colección productsInventory
-    const products = await this.pb.collection('productsInventory').getFullList();
-
-    // Paso 2: Iterar sobre cada producto y optimizar su imagen
-    for (let product of products) {
-      if (product['files'] && product['files'].length > 0) {
-        const imageUrl = product['files'][0]; // URL de la imagen actual desde la colección 'files'
-        
-        // Paso 3: Descargar la imagen desde la URL de la colección 'files'
-        const img = await this.loadImageFromUrl(imageUrl);
-
-        // Paso 4: Optimizar la imagen utilizando Canvas
-        const optimizedImage = await this.optimizeImage(img);
-
-        // Paso 5: Convertir la imagen optimizada a un formato adecuado para PocketBase (base64 -> Blob)
-        const formData = new FormData();
-        const blob = this.dataURLtoBlob(optimizedImage);
-        formData.append('file', blob, 'optimized-image.jpg');
-
-        // Paso 6: Subir la imagen optimizada a PocketBase (colección 'files')
-        const response = await this.pb.collection('files').create(formData);
-
-        // Paso 7: Actualizar el producto con la nueva URL de la imagen optimizada
-        const updatedProductData = {
-          files: [response['file']] // Suponiendo que 'file' es el nombre de la imagen subida
-        };
-
-        // Actualizar el producto en PocketBase
-        await this.pb.collection('productsInventory').update(product.id, updatedProductData);
-
-        console.log(`Producto ${product['name']} actualizado con la imagen optimizada.`);
-      }
-    }
-
-    Swal.fire({
-      title: 'Éxito!',
-      text: 'Las imágenes han sido optimizadas y actualizadas con éxito.',
-      icon: 'success',
-      confirmButtonText: 'Aceptar'
-    });
-  } catch (error) {
-    console.error('Error al optimizar las imágenes:', error);
-    Swal.fire({
-      title: 'Error!',
-      text: 'Hubo un problema al optimizar las imágenes. Intenta nuevamente.',
-      icon: 'error',
-      confirmButtonText: 'Aceptar'
-    });
-  }
-}
-
-// Función para descargar una imagen desde una URL
-loadImageFromUrl(url: string): Promise<HTMLImageElement> {
-  return new Promise((resolve, reject) => {
-    const img = new Image();
-    img.crossOrigin = 'Anonymous'; // Asegurarnos de que no haya problemas con CORS si es necesario
-    img.onload = () => resolve(img);
-    img.onerror = (err) => reject(err);
-    img.src = url;
-  });
-}
-
-// Función para optimizar la imagen usando Canvas
-async optimizeImage(img: HTMLImageElement): Promise<string> {
-  const canvas = document.createElement('canvas');
-  const ctx = canvas.getContext('2d');
-
-  // Ajustar las dimensiones de la imagen
-  const MAX_WIDTH = 800;  // Cambia el valor según sea necesario
-  const MAX_HEIGHT = 800; // Cambia el valor según sea necesario
-  let width = img.width;
-  let height = img.height;
-
-  if (width > height) {
-    if (width > MAX_WIDTH) {
-      height = (height * MAX_WIDTH) / width;
-      width = MAX_WIDTH;
-    }
-  } else {
-    if (height > MAX_HEIGHT) {
-      width = (width * MAX_HEIGHT) / height;
-      height = MAX_HEIGHT;
-    }
-  }
-
-  // Establecer las dimensiones del canvas
-  canvas.width = width;
-  canvas.height = height;
-
-  // Dibujar la imagen en el canvas con las nuevas dimensiones
-  ctx?.drawImage(img, 0, 0, width, height);
-
-  // Convertir la imagen optimizada a base64 con calidad reducida (por ejemplo, 0.7 para compresión)
-  return canvas.toDataURL('image/jpeg', 0.7); // Puedes ajustar la calidad según lo necesites
-}
 
 // Función para convertir base64 a Blob (para que pueda ser subida a PocketBase)
 dataURLtoBlob(dataURL: string): Blob {

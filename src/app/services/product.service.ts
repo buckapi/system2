@@ -73,4 +73,13 @@ export class ProductService {
   getProducts(): Observable<any[]> {
     return this.http.get<any[]>(`${this.pb.baseUrl}/productsInventory`);
   }
+  getProductById(productId: string): Promise<Product> {
+    return this.pb.collection('productsInventory').getOne(productId);
+  }
+  
+
+  
+  updateProduct(productId: string, data: Product): Promise<Product> {
+    return this.pb.collection('productsInventory').update(productId, data);
+  }
 }
