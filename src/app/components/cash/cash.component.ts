@@ -84,6 +84,7 @@ export class CashComponent {
   filteredProducts: any[] = [];
   ventasDelDia: any[] = [];
   private searchTimeout: any;
+  showOptions: boolean = false;
 
   constructor
   (public global: GlobalService,
@@ -123,6 +124,21 @@ export class CashComponent {
     });
     
   }
+  toggleOptions() {
+    this.showOptions = !this.showOptions; // Alternar la visibilidad de las opciones
+}
+
+handleVenta() {
+    // Lógica para manejar la venta
+    console.log('Venta seleccionada');
+    this.showOptions = false; // Ocultar opciones después de seleccionar
+}
+
+handleCierreCaja() {
+    // Lógica para manejar el cierre de caja
+    console.log('Cierre de caja seleccionado');
+    this.showOptions = false; // Ocultar opciones después de seleccionar
+}
   getQrCodeUrl(record: any): string {
     const fileName = record['qrCodeFileName'] || 'default.png'; // Usa un valor por defecto si es necesario
     const fileId = record['qrCodeId'] || 'defaultId'; // Usa un valor por defecto si es necesario
@@ -558,6 +574,8 @@ private getCurrentUserInfo() {
 openCashModal() {
   this.showForm = true;
   this.showCashClose = false;
+  this.showOptions = false; // Ocultar opciones después de seleccionar
+
 }
 
 
@@ -566,7 +584,8 @@ openCashCloseModal() {
   this.showCashClose = true;
   this.calcularTotalVentasDelDia(); // Llama a la función para calcular el total de ventas
   this.ventasDelDia = this.filtrarVentasDelDia(this.ventas); // Filtra las ventas del día
-}
+  this.showOptions = false; // Ocultar opciones después de seleccionar
+  }
 
 /* calcularTotalVentasDelDia() {
   const hoy = new Date().toLocaleDateString();

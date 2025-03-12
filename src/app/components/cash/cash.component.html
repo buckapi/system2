@@ -19,7 +19,7 @@
                                 <li> <span class="text-gray-500 fw-normal d-flex"><i class="ph ph-caret-right"></i></span>
                                 </li>
                                 <li><span class="text-main-600 fw-normal text-15">Caja Registradora</span></li>
-                                <li> <span class="text-gray-500 fw-normal d-flex"><i class="ph ph-caret-right"></i></span>
+                                <!-- <li> <span class="text-gray-500 fw-normal d-flex"><i class="ph ph-caret-right"></i></span>
                                 </li>
                                 <li><span class="text-main-600 fw-normal text-15" *ngIf="showForm">Venta</span></li>
                                 <li><span class="text-main-600 fw-normal text-15" *ngIf="showCashClose">Cierre de caja</span></li>
@@ -27,9 +27,11 @@
                                     <a (click)="volverAOpciones()" style="cursor: pointer;" class="text-gray-200 fw-normal text-15 hover-text-main-600">
                                         Volver a Opciones
                                     </a>
-                                </li>
+                                </li> -->
                             </ul>
                         </div>
+                        <button *ngIf="showForm || showCashClose" (click)="volverAOpciones()" type="button" class="btn btn-main text-sm btn-sm px-24 rounded-pill py-12 d-flex align-items-center gap-2">
+                            <i class="ph ph-arrow-left"></i> Opciones</button>
                         
                     </div>
                     <div class="flex-align gap-16 col-12 col-md-8 col-lg-6 mx-auto" *ngIf="!showForm && !showCashClose">
@@ -494,6 +496,15 @@
                     </div>
                 </div>
             </div>
+        </div>
+    </div>
+    <div class="floating-button-container">
+        <button class="floating-button" (click)="toggleOptions()">
+            +
+        </button>
+        <div *ngIf="showOptions" class="options-container">
+            <button (click)="openCashModal()">Realizar venta</button>
+            <button (click)="openCashCloseModal()">Cerrar caja</button>
         </div>
     </div>
 </div>
