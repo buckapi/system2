@@ -3,11 +3,24 @@ import Swal from 'sweetalert2';
 import { RealtimeCategoriasService } from './realtime-categorias.service';
 import { RealtimeProductsService } from './realtime-productos.service';
 import { take } from 'rxjs/operators';
+import { productInterface } from './data-api.service';
 
 interface Categoria {
   id: string;
   name: string;
   repositories: Categoria[];
+}
+interface Product {
+  id: string;
+  name: string;
+  price: number;
+  stock: number;
+  idCategoria: string;
+  description: string;
+  files: string[];
+  color: string;
+  codeBarra: string;
+  barcode: string;
 }
 @Injectable({
   providedIn: 'root'
@@ -20,6 +33,32 @@ export class GlobalService {
   productosFiltrados: any[] = [];
   productos: any[] = [];
   searchTerm: string = '';
+  products = {
+    id:'',
+    name: '',
+    price: '',
+    stock: '',
+    idCategoria: '',
+    description: '',
+    files: [] as string[],
+    color: '',
+    codeBarra: '',
+    barcode: '',
+  };
+  
+productSelected: productInterface = {
+  id:'',
+  name: '',
+    price: 0,
+    stock: 0,
+    idCategoria: '',
+    description: '',
+    files: [],
+    color: '',
+    codeBarra: '',
+    barcode: '',
+    
+};
 
   constructor(
     public realtimeCategorias: RealtimeCategoriasService,

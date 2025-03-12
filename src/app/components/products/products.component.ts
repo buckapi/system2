@@ -366,6 +366,7 @@ export class ProductsComponent {
   this.isEditing = true; // Indica que estamos en modo de edición
 
 } 
+
 /* async updateProduct(productId: string) {
     // Verificar si el formulario es válido
     if (this.addProductForm.invalid) {

@@ -83,6 +83,8 @@ export class CashComponent {
   ventas: any[] = [];
   filteredProducts: any[] = [];
   ventasDelDia: any[] = [];
+  private searchTimeout: any;
+
   constructor
   (public global: GlobalService,
     public realtimeProducts: RealtimeProductsService,
@@ -166,7 +168,11 @@ onSearchChange(event: Event): void {
   const inputElement = event.target as HTMLInputElement;
   const termino = inputElement.value;
   console.log('Término de búsqueda:', termino); // Para debugging
-  this.filtrarProductos(termino);
+
+  clearTimeout(this.searchTimeout); // Limpiar el timeout anterior
+  this.searchTimeout = setTimeout(() => {
+      this.filtrarProductos(termino);
+  }, 300); // Ajusta el tiempo según sea necesario
 }
 filtrarProductos(termino: string) {
   if (!termino) {

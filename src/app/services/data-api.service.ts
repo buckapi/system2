@@ -6,6 +6,16 @@ import { FormBuilder } from '@angular/forms';
 import { Observable } from 'rxjs';
 import { ProductService } from './product.service';
 export interface productInterface{
+  id: string; // Ensure id is included
+  name: string;
+  price: number;
+  stock: number;
+  idCategoria: string;
+  description: string;
+  files: string[];
+  color: string;
+  codeBarra: string;
+  barcode: string;
 }
 export interface ventaInterface{
   id: string;
@@ -66,13 +76,27 @@ export class DataApiService {
   getAllProducts(): Observable<ProductService []> {
     return this.http.get<ProductService[]>(`${this.baseUrl}/collections/productsInventory/records`);
   }
-  updateProduct(id: string, request: productInterface) {
+/*   updateProduct(id: string, request: productInterface) {
     const url_api = this.baseUrl + `/collections/productsInventory/records/${id}`;
 		return this.http.put<productInterface>(url_api, request).pipe(
 		  map(data => data)
 		);
-	  }
-    updateProductStock(productId: string, newStock: number) {
+	  } */
+   /*  updateProduct(productId: string, product: productInterface): Observable<productInterface> {
+      return this.http.put<productInterface>(`https://db.buckapi.lat:8095/productsInventory/${productId}`, product);
+  } */
+  /* updateProduct(productId: string, product: productInterface): Observable<productInterface> {
+    const url = `https://db.buckapi.lat:8095/productsInventory/${productId}`;
+    return this.http.put<productInterface>(url, product);
+} */
+updateProduct(productId: string, product: productInterface): Observable<any> {
+  const url = `https://db.buckapi.lat:8095/api/collections/productsInventory/records/${productId}`;     
+
+    return this.http.patch(url, document).pipe(
+    map(response => response)
+  );
+  }
+  updateProductStock(productId: string, newStock: number) {
       const url_api = `${this.baseUrl}/collections/productsInventory/records/${productId}`;
       const request = { stock: newStock };
       
