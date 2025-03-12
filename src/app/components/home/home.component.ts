@@ -10,6 +10,8 @@ import { HttpClient } from '@angular/common/http';
 import { RealtimeEmployeesService } from '../../services/realtime-employees.service';
 import { RealtimeVentasService } from '../../services/realtime-ventas.service';
 import { Modal } from 'bootstrap';
+import { RealtimeCuentasxpagarService } from '../../services/realtime-cuentasxpagar.service';
+import { RealtimeCuentasxcobrarService } from '../../services/realtime-cuentasxcobrar.service';
 
 interface WorkInstruction {
     id: string | number; 
@@ -56,6 +58,8 @@ ventas: any[] = [];
   totalIngresos: number = 0;
   totalStock: number = 0;
   ventasDelDia: any[] = [];
+  totalCuentasPorPagar: number = 0;
+  totalCuentasPorCobrar: number = 0;
   constructor(
     public global: GlobalService,
     public auth: AuthPocketbaseService,
@@ -63,7 +67,9 @@ ventas: any[] = [];
     public realtimeProducts: RealtimeProductsService,
     private http: HttpClient,
     public realtimeEmployees: RealtimeEmployeesService,
-    public realtimeVentas: RealtimeVentasService
+    public realtimeVentas: RealtimeVentasService,
+    public realtimeCuentasxpagar: RealtimeCuentasxpagarService,
+    public realtimeCuentasxcobrar: RealtimeCuentasxcobrarService
   ){    
        this.dataApiService.getAllProducts();  
   }
@@ -88,7 +94,13 @@ ventas: any[] = [];
         this.totalIngresos = ventas.reduce((total, venta) => total + (venta.total || 0), 0);
       }
     });   
-  
+
+    this.realtimeCuentasxpagar.cuentasxpagar$.subscribe((cuentasxpagar) => {
+      this.totalCuentasPorPagar = cuentasxpagar.reduce((monto, cuentasxpagar) => monto + cuentasxpagar.monto, 0);
+    });
+    this.realtimeCuentasxcobrar.cuentasxcobrar$.subscribe((cuentasxcobrar) => {
+      this.totalCuentasPorCobrar = cuentasxcobrar.reduce((monto, cuentasxcobrar) => monto + cuentasxcobrar.monto, 0);
+    });
   }
 
   openSaleDetailsModal(venta: any) {

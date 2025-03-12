@@ -173,7 +173,7 @@
                     <!-- Progress Bar Start -->
                     <div class="card h-100">
                         <div class="card-header border-bottom border-gray-100 flex-between flex-wrap gap-8">
-                            <h5 class="mb-0">Stock</h5>
+                            <h5 class="mb-0">Contabilidad</h5>
                             <div class="dropdown flex-shrink-0">
                                 <button class="text-gray-400 text-xl d-flex rounded-4" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                                     <i class="ph-fill ph-dots-three-outline"></i>
@@ -183,9 +183,9 @@
                                         <div class="card-body p-12">
                                             <div class="max-h-200 overflow-y-auto scroll-sm pe-8">
                                                 <ul>
-                                                    <li class="mb-0">
-                                                        <a (click)="global.setRoute('products')" class="py-6 text-15 px-8 hover-bg-gray-50 text-gray-300 w-100 rounded-8 fw-normal text-xs d-block text-start">
-                                                            <span class="text"> <i class="ph ph-boxes"></i> Ir a Inventario</span>
+                                                    <li class="mb-0" >
+                                                        <a (click)="global.setRoute('contabilidad')" class="py-6 text-15 px-8 hover-bg-gray-50 text-gray-300 w-100 rounded-8 fw-normal text-xs d-block text-start">
+                                                            <span class="text"> <i class="ph ph-boxes"></i> Ir a contabilidad</span>
                                                         </a>
                                                     </li>
                                                 </ul>
@@ -197,31 +197,23 @@
                         </div>
                         <div class="card-body">
 
-                           <div class="">
-                                <span class="text-gray-200 text-lg mb-12 mt-10 d-block text-center">Total Stock</span>
-                                <h1 class="text-48 fw-medium mb-12 text-center">
-                                    <ng-container *ngIf="products !== undefined; else loading">
-                                        {{calculateTotalStock()}}
-                                    </ng-container>
-                                    <ng-template #loading>
-                                        <span>Cargando...</span>
-                                    </ng-template>
-                                </h1>
-                                <div class="flex-between flex-wrap">
-                                    <div class="d-flex gap-8 mt-12 flex-column w-50-perc pe-8">
-                                        <div class="progress w-100 bg-main-100 rounded-pill h-4" role="progressbar" aria-label="Basic example" aria-valuenow="32" aria-valuemin="0" aria-valuemax="100">
-                                            <div class="progress-bar bg-main-600 rounded-pill" style="width: 32%"></div>
-                                        </div>
-                                        <span class="text-neutral-600 flex-shrink-0 text-13 fw-medium">{{totalStock}}</span>
+                            <div class="mt-20" >
+                                <div class="bg-primary-50 rounded-16 p-12 flex-between flex-wrap gap-8 mb-0" >
+                                    <div class="flex-align gap-16" *ngFor="let cuentasxpagar of (realtimeCuentasxpagar.cuentasxpagar$ | async)">  
+                                        <span class="w-48 h-48 rounded-8 flex-center text-xl bg-primary-600 text-white"><i class="ph ph-money"></i></span>
+                                        <h2 class="mb-0 fw-medium text-primary-600">{{totalCuentasPorPagar | number:'1.2-2'}}</h2>
                                     </div>
-                                    <div class="d-flex gap-8 mt-12 flex-column w-50-perc ps-8">
-                                        <div class="progress w-100 bg-main-two-100 rounded-pill h-4" role="progressbar" aria-label="Basic example" aria-valuenow="80" aria-valuemin="0" aria-valuemax="100">
-                                            <div class="progress-bar bg-main-two-600 rounded-pill" style="width: 80%"></div>
-                                        </div>
-                                        <span class="text-neutral-600 flex-shrink-0 text-13 fw-medium">{{totalStock}}</span>
-                                    </div>
+                                    <!-- <span class="px-16 py-4 rounded-pill bg-white border border-primary-600 text-primary-600 fw-medium">..</span> -->
                                 </div>
-                           </div>
+                                
+                                <div class="bg-success-50 rounded-16 p-12 flex-between flex-wrap gap-8 mb-0" *ngFor="let cuentasxcobrar of (realtimeCuentasxcobrar.cuentasxcobrar$ | async)">
+                                    <div class="flex-align gap-16">  
+                                        <span class="w-48 h-48 rounded-8 flex-center text-xl bg-success-600 text-white"><i class="ph ph-credit-card"></i></span>
+                                        <h2 class="mb-0 fw-medium text-success-600">{{totalCuentasPorCobrar | number:'1.2-2'}}</h2>
+                                    </div>
+                                    <!-- <span class="px-16 py-4 rounded-pill bg-white border border-success-600 text-success-600 fw-medium">..</span> -->
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <!-- Progress bar end -->
