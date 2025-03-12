@@ -233,4 +233,13 @@
       </div>
     </div>
   </div>
+  <div class="floating-button-container" *ngIf="!showForm">
+    <button class="floating-button" (click)="showNewProduct()">
+        +
+    </button>
+    <!-- <div *ngIf="showOptions" class="options-container">
+        <button (click)="openCashModal()">Realizar venta</button>
+        <button (click)="openCashCloseModal()">Cerrar caja</button>
+    </div> -->
+</div>
 </div>

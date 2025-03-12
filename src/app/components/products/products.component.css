@@ -1,0 +1,73 @@
+.floating-button-container {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+.floating-button {
+    background-color: #ed5e76;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    font-size: 24px;
+    cursor: pointer;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.options-container {
+    margin-top: 10px;
+    display: flex;
+    flex-direction: column;
+}
+
+.options-container button {
+    margin: 5px 0;
+    background-color: white;
+    border: 1px solid #ed5e76;
+    color: #ed5e76;
+    border-radius: 5px;
+    padding: 10px 15px;
+    cursor: pointer;
+}
+.floating-button-container {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    z-index: 1000; /* Asegúrate de que esté por encima de otros elementos */
+}
+
+.floating-button {
+    background-color: #ed5e76;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    font-size: 24px;
+    cursor: pointer;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.options-container {
+    margin-top: 10px;
+    display: flex;
+    flex-direction: column;
+}
+
+.options-container button {
+    margin: 5px 0;
+    background-color: white;
+    border: 1px solid #ed5e76;
+    color: #ed5e76;
+    border-radius: 5px;
+    padding: 10px 15px;
+    cursor: pointer;
+}
