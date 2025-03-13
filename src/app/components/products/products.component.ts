@@ -56,7 +56,9 @@ export class ProductsComponent {
   previewImage: string = 'assets/images/thumbs/setting-profile-img.jpg';
   products: any[] = []; // Changed Product to any[] since Product type is not defined
   products$: any;
-  currentProductId: string = '';
+/*   currentProductId: string = '';
+ */  currentProductId: string | null = null;
+
   showFilter = false;
   ventas: any[] = [];
   imagePreview: string | null = null; // Para mostrar la vista previa de la imagen
@@ -85,6 +87,7 @@ export class ProductsComponent {
   addProductForm: FormGroup;
   selectedImage: File | null = null;
   selectedImagePrev: string = '';
+  
   constructor(
     public global: GlobalService,
     private fb: FormBuilder,
@@ -335,7 +338,7 @@ export class ProductsComponent {
   }
   
 // Método para actualizar un producto
- async updateProduct(productId: string) {
+/*  async updateProduct(productId: string) {
   // Verificar si el formulario es válido
   if (this.addProductForm.invalid) {
       console.log('Formulario inválido', this.addProductForm.errors);
@@ -367,7 +370,7 @@ export class ProductsComponent {
   this.showForm = true; // Asegúrate de que esta variable controle la visibilidad del formulario
   this.isEditing = true; // Indica que estamos en modo de edición
 
-} 
+}  */
 
 /* async updateProduct(productId: string) {
     // Verificar si el formulario es válido
@@ -433,7 +436,104 @@ export class ProductsComponent {
   this.isEditing = true; // Indica que estamos en modo de edición
 
 } */
-  async onEdit(productId: string) {
+  /* async updateProduct(productId: string) {
+    if (!productId) {
+      console.error('ID del producto no válido');
+      return;
+    }
+  
+    const product = await this.productService.getProductById(productId);
+  
+    // Cargar los datos del producto en el formulario
+    this.addProductForm.patchValue({
+      name: product.name,
+      price: product.price,
+      idCategoria: product.idCategoria,
+      description: product.description,
+      stock: product.stock,
+      color: product.color,
+      files: product.files
+    });
+  
+    // Si el producto tiene una imagen asociada, mostrarla
+    if (product.files && product.files.length > 0) {
+      this.selectedImagePrev = product.files[0];
+    }
+  
+    // Mostrar el formulario de edición
+    this.showForm = true;
+    this.isEditing = true;
+    this.currentProductId = productId;  // Asigna el ID del producto para usarlo en la actualización
+  } */
+    async updateProduct(productId: string) {
+      if (!productId) {
+        console.error('ID del producto no válido');
+        return;
+      }
+    
+      // Primero, obtener los datos del producto
+      const product = await this.productService.getProductById(productId);
+    
+      // Cargar los datos del producto en el formulario
+      this.addProductForm.patchValue({
+        name: product.name,
+        price: product.price,
+        idCategoria: product.idCategoria,
+        description: product.description,
+        stock: product.stock,
+        color: product.color,
+        files: product.files,
+        codeBarra: product.codeBarra,
+      });
+    
+      // Si el producto tiene una imagen asociada, mostrarla
+      if (product.files && product.files.length > 0) {
+        this.selectedImagePrev = product.files[0];
+      }
+    
+      // Mostrar el formulario de edición
+      this.showForm = true;
+      this.isEditing = true;
+      this.currentProductId = productId;  // Asigna el ID del producto para usarlo en la actualización
+    }
+    
+    
+    async submitProductForm() {
+      if (this.addProductForm.invalid) {
+        console.error('Formulario inválido');
+        return;
+      }
+    
+      const updatedProduct = this.addProductForm.value;  // Obtén los valores del formulario
+    
+      if (!this.currentProductId) {
+        console.error('ID de producto no válido');
+        return;
+      }
+    
+      try {
+        // Realizar la actualización con el servicio
+        await this.productService.updateProduct(this.currentProductId, updatedProduct);
+    
+        // Verificar que la actualización fue exitosa obteniendo el producto actualizado
+        const updatedProductData = await this.productService.getProductById(this.currentProductId);
+        console.log('Producto actualizado:', updatedProductData);
+    
+        // Cerrar el formulario después de la actualización exitosa
+        this.showForm = false;  // Cierra el formulario de edición
+        this.isEditing = false;  // Marca como no edición
+        this.currentProductId = null;  // Limpia el ID del producto actual
+    
+        alert('Producto actualizado con éxito');
+      } catch (error) {
+        console.error('Error al actualizar el producto:', error);
+      }
+    }
+    
+    
+  
+  
+ /*  async onEdit(productId: string) {
   // Verifica que productId no sea null o undefined
   if (!productId) {
       console.error('ID del producto no válido');
@@ -466,7 +566,7 @@ if (product.files && product.files.length > 0) {
   this.showForm = true; // Asegúrate de que esta variable controle la visibilidad del formulario
   this.isEditing = true; // Indica que estamos en modo de edición
 }
-    
+     */
   async updateProductBarcodes() {
   try {
     // 1. Obtener la lista completa de productos desde PocketBase
@@ -562,11 +662,12 @@ if (product.files && product.files.length > 0) {
     }
     return 0;
   }
+
   cancelEdit() {
     this.showForm = false;
     this.isEditing = false;
     this.addProductForm.reset();
-    this.imagePreview = '';
+    this.selectedImagePrev = '';  // Restablecer la vista previa de la imagen
   }
  
 

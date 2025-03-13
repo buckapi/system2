@@ -160,8 +160,8 @@
           <p class="text-gray-600 text-15">Ingrese todos los datos del producto</p>
         </div>
 
-        <div class="card-body">
-          <form [formGroup]="addProductForm" (ngSubmit)="updateProduct(currentProductId)" #productFormDir="ngForm">
+        <div class="card-body" *ngIf="showForm">
+          <form [formGroup]="addProductForm" (ngSubmit)="submitProductForm()" #productFormDir="ngForm" >
             <div class="row gy-4">
               <div class="col-sm-6 col-xs-6">
                 <label for="category" class="form-label mb-8 h6">Categoría</label>
@@ -223,7 +223,7 @@
                   <button type="button" (click)="showForm=false"
                     class="btn btn-outline-main bg-main-100 border-main-100 text-main-600 rounded-pill py-9">Cancelar</button>
                   <button type="submit" class="btn btn-main rounded-pill py-9"
-                    [disabled]="!addProductForm.valid">Guardar</button>
+                 [disabled]="addProductForm.invalid || !currentProductId">Guardar Cambios</button>
                 </div>
               </div>
             </div>

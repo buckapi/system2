@@ -92,10 +92,12 @@ export class DataApiService {
 updateProduct(productId: string, product: productInterface): Observable<any> {
   const url = `https://db.buckapi.lat:8095/api/collections/productsInventory/records/${productId}`;     
 
-    return this.http.patch(url, document).pipe(
+    return this.http.patch(url, product).pipe(
     map(response => response)
   );
   }
+  
+  
   updateProductStock(productId: string, newStock: number) {
       const url_api = `${this.baseUrl}/collections/productsInventory/records/${productId}`;
       const request = { stock: newStock };
