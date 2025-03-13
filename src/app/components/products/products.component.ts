@@ -104,7 +104,7 @@ export class ProductsComponent {
     this.addProductForm = this.fb.group({
       name: [''],
       price: [''],
-      stock: [''],
+      stock: [0, Validators.required], // Inicializa el stock como número (por defecto 0)
       idCategoria: [''],
       description: [''],
       files: [''],
@@ -112,6 +112,7 @@ export class ProductsComponent {
       color: [''],
       codeBarra: ['']
     });
+    
     this.showForm = false;
     this.isEditing = false;    
   }
@@ -274,16 +275,17 @@ export class ProductsComponent {
   
               // Crear el objeto del producto con la información necesaria
               const productData = {
-                  name: this.addProductForm.get('name')?.value,
-                  price: this.addProductForm.get('price')?.value,
-                  idCategoria: this.addProductForm.get('idCategoria')?.value,
-                  description: this.addProductForm.get('description')?.value,
-                  barcode: barcode, // Usar el código de barras generado
-                  stock: this.addProductForm.get('stock')?.value,
-                  color: this.addProductForm.get('color')?.value,
-                  files: files,
-                  codeBarra: canvas.toDataURL() // Usar el canvas convertido a URL
+                name: this.addProductForm.get('name')?.value,
+                price: this.addProductForm.get('price')?.value,
+                idCategoria: this.addProductForm.get('idCategoria')?.value,
+                description: this.addProductForm.get('description')?.value,
+                barcode: barcode, // Usar el código de barras generado
+                stock: Number(this.addProductForm.get('stock')?.value), // Asegurarse de convertir a número
+                color: this.addProductForm.get('color')?.value,
+                files: files,
+                codeBarra: canvas.toDataURL() // Usar el canvas convertido a URL
               };
+              
   
               // Llamar al servicio para agregar el producto
               await this.productService.createProduct(productData);
