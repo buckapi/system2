@@ -82,6 +82,43 @@
                 
               </div>
             </div>
+            <div class="pagination-controls">
+              <button (click)="prevPage()" [disabled]="currentPage === 1">Previous</button>
+              <span>Page {{currentPage}}</span>
+              <button (click)="nextPage()" [disabled]="currentPage * pageSize >= totalProducts">Next</button>
+            </div>
+            <!-- <div class="flex-between flex-wrap gap-8 mt-20">
+              <a class="btn btn-outline-gray rounded-pill py-9 flex-align gap-4">
+                  <span class="d-flex text-xl"><i class="ph ph-arrow-left"></i></span> 
+                  anterior
+              </a>
+              <ul class="pagination flex-align flex-wrap">
+                  <li class="page-item active">
+                      <a class="page-link h-44 w-44 flex-center text-15 rounded-8 fw-medium" href="mentors.html#">1</a>
+                  </li>
+                  <li class="page-item">
+                      <a class="page-link h-44 w-44 flex-center text-15 rounded-8 fw-medium" href="mentors.html#">2</a>
+                  </li>
+                  <li class="page-item">
+                      <a class="page-link h-44 w-44 flex-center text-15 rounded-8 fw-medium" href="mentors.html#">3</a>
+                  </li>
+                  <li class="page-item">
+                      <a class="page-link h-44 w-44 flex-center text-15 rounded-8 fw-medium" href="mentors.html#">...</a>
+                  </li>
+                  <li class="page-item">
+                      <a class="page-link h-44 w-44 flex-center text-15 rounded-8 fw-medium" href="mentors.html#">8</a>
+                  </li>
+                  <li class="page-item">
+                      <a class="page-link h-44 w-44 flex-center text-15 rounded-8 fw-medium" href="mentors.html#">9</a>
+                  </li>
+                  <li class="page-item">
+                      <a class="page-link h-44 w-44 flex-center text-15 rounded-8 fw-medium" href="mentors.html#">10</a>
+                  </li>
+              </ul>
+              <a  class="btn btn-outline-main rounded-pill py-9 flex-align gap-4">
+                  Siguiente <span class="d-flex text-xl"><i class="ph ph-arrow-right"></i></span> 
+              </a>
+          </div> -->
           </div>
         </div>
       </div>
