@@ -89,3 +89,29 @@ input[name="search"] {
     padding: 10px 15px;
     cursor: pointer;
 }
+
+.factura-preview {
+    width: 80mm; /* Ancho fijo de 80 mm */
+    font-size: 12px; /* Tamaño de fuente más pequeño */
+    padding: 5mm; /* Espaciado interno */
+    box-sizing: border-box; /* Incluye el padding en el ancho total */
+  }
+  
+  .factura-preview img {
+    max-height: 30px; /* Reduce el tamaño del logo */
+  }
+  
+  .factura-preview table {
+    width: 100%; /* La tabla ocupa el 100% del ancho */
+    font-size: 10px; /* Tamaño de fuente más pequeño para la tabla */
+  }
+  
+  .factura-preview .totales {
+    font-size: 12px; /* Tamaño de fuente para los totales */
+  }
+
+  .hidden-invoice {
+    position: absolute;
+    left: -9999px; /* Mueve el elemento fuera de la pantalla */
+    visibility: visible; /* Asegúrate de que sea visible */
+  }

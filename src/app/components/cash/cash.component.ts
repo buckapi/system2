@@ -13,12 +13,16 @@ import { UploadService } from '../../services/upload.service';
 import { from } from 'rxjs';
 import QRCode from 'qrcode';
 import PocketBase from 'pocketbase';
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
+
 
 export interface PocketBaseError {
   message: string;
   // otras propiedades que puedas necesitar
 }
 export interface VentaInterface {
+  ventas: any[];
   id: string;
   customer: string;
   date: string;
@@ -85,6 +89,7 @@ export class CashComponent {
   ventasDelDia: any[] = [];
   private searchTimeout: any;
   showOptions: boolean = false;
+  venta: any = null;
 
   constructor
   (public global: GlobalService,
@@ -587,12 +592,6 @@ openCashCloseModal() {
   this.showOptions = false; // Ocultar opciones después de seleccionar
   }
 
-/* calcularTotalVentasDelDia() {
-  const hoy = new Date().toLocaleDateString();
-  this.totalVentasDelDia = this.ventas
-    .filter(venta => new Date(venta.date).toLocaleDateString() === hoy)
-    .reduce((total, venta) => total + (venta.total || 0), 0);
-} */
 
 calcularTotalVentasDelDia() {
   console.log('Ventas del día:', this.ventasDelDia); // Verificar qué hay en ventasDelDia
@@ -650,6 +649,81 @@ openSaleDetailsModal(venta: any) {
     modal.show();
   }
 }
+
+generatePDF(venta: any) {
+  const element = document.getElementById(`invoice-${venta.id}`);
+  console.log('Elemento a capturar:', element); // Verifica si el elemento existe
+  if (element) {
+    html2canvas(element).then(canvas => {
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      pdf.text(`Factura para ${venta.customer}`, 10, 10);
+      pdf.text(`Total: ₡ ${venta.total.toFixed(2)}`, 10, 20);
+      pdf.save(`factura-${venta.id}.pdf`);
+    }).catch(error => {
+      console.error('Error al generar el canvas:', error); // Captura errores de html2canvas
+    });
+  } else {
+    console.error('Elemento no encontrado');
+  }
+  
+}
+  /* generatePDF(venta: any) {
+    // Crear un nuevo objeto jsPDF con tamaño personalizado (80 mm de ancho)
+    const pdf = new jsPDF('p', 'mm', [80, 200]); // 80 mm de ancho, altura dinámica
+  
+    // Agregar la fecha y hora
+    pdf.setFontSize(10);
+    pdf.text(`Fecha: ${new Date().toLocaleDateString()}`, 10, 10);
+    pdf.text(`Hora: ${new Date().toLocaleTimeString()}`, 10, 15);
+  
+    // Agregar información del cliente
+    pdf.text(`Cliente: ${venta.customer}`, 10, 25);
+    pdf.text(`Método de pago: ${venta.metodoPago}`, 10, 30);
+  
+    // Agregar la tabla de productos
+    let y = 40; // Posición vertical inicial para la tabla
+    pdf.setFontSize(8);
+    pdf.text('Producto', 10, y);
+    pdf.text('Cant.', 30, y);
+    pdf.text('Precio/Unidad', 45, y);
+    pdf.text('Total', 65, y);
+    y += 5;
+  
+    // Recorrer los productos y agregarlos al PDF
+    venta.productosSeleccionados.forEach((producto: any) => {
+      pdf.text(producto.name, 10, y);
+      pdf.text(producto.cantidad.toString(), 30, y);
+      pdf.text(`₡ ${producto.price.toFixed(2)}`, 45, y);
+      pdf.text(`₡ ${(producto.price * producto.cantidad).toFixed(2)}`, 65, y);
+      y += 5; // Aumentar la posición vertical para el siguiente producto
+    });
+  
+    // Agregar el total
+    pdf.setFontSize(10);
+    pdf.text(`Total: ₡ ${venta.total.toFixed(2)}`, 10, y + 10);
+  
+    // Guardar el PDF con un nombre específico
+    pdf.save(`factura-${venta.id}.pdf`);
+  } */
+
+/*   generatePDF(venta: any) {
+    const element = document.getElementById(`invoice-${venta.id}`);
+    console.log('Elemento a capturar:', element); // Verifica si el elemento existe
+    if (element) {
+      html2canvas(element, { scale: 2 }).then(canvas => {
+        const pdfWidth = 80; // Ancho en mm
+        const pdfHeight = (canvas.height * pdfWidth) / canvas.width; // Altura proporcional
+        const pdf = new jsPDF('p', 'mm', [pdfWidth, pdfHeight]);
+        const imgData = canvas.toDataURL('image/png', 1.0); // Tipo de archivo PNG con calidad máxima
+        pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+        pdf.save(`factura-${venta.id}.pdf`);
+      }).catch(error => {
+        console.error('Error al generar el PDF:', error); // Captura errores de html2canvas
+      });
+    } else {
+      console.error('Elemento no encontrado');
+    }
+  } */
 
 
 }
