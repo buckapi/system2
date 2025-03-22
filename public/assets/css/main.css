@@ -4884,7 +4884,7 @@ button:focus {
 }
 
 .text-gray-400 {
-    color: var(--gray-400) !important;
+    color: #ed5e76 !important;
 }
 
 .text-gray-500 {
@@ -9805,8 +9805,7 @@ button:focus {
 
 .resource-item-wrapper {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
-    grid-template-columns: repeat(auto-fit, 90px);
+    grid-template-columns: repeat(7, minmax(150px, 1fr)); /* Siempre 7 columnas */
     grid-gap: 32px;
 }
 

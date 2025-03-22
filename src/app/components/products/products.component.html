@@ -19,20 +19,7 @@
                 <!-- Card Header Start -->
                 <div class="card-header border-bottom border-gray-100">
                     <div class="flex-between flex-wrap gap-8">
-                        <!-- <form action="" class="w-350 d-sm-block d-none">
-                            <div class="position-relative">
-                                <button 
-                                type="submit" 
-                                class="input-icon text-xl d-flex text-gray-100 pointer-event-none">
-                                <i class="ph ph-magnifying-glass"></i>
-                            </button> 
-                                <input 
-                                type="text" 
-                                class="form-control ps-40 h-40 border-transparent focus-border-main-600 bg-main-50 rounded-pill placeholder-15" 
-                                placeholder="Buscar productos" 
-                                [(ngModel)]="searchTerm" 
-                                (input)="filterProducts()">                            </div>
-                        </form> -->
+                     
                         <div>
                             <input 
                             class="form-control ps-40 h-40 border-transparent focus-border-main-600 bg-main-50 rounded-pill placeholder-15" 
@@ -76,9 +63,35 @@
                         <div class="resource-item-wrapper px-24" >
                             <!-- <div class="resource-item" *ngFor="let product of (realtimeProducts.products$ | async); let i = index"> -->
                                 <div class="resource-item" *ngFor="let product of filteredProducts; let i = index">
+                                  
                                 <label for="checkbox49" class="">
+                                    <div class="dropdown flex-shrink-0">
+                                        <button class="text-gray-400 text-xl d-flex rounded-4 text-end ms-auto" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="background: #dee2e6;">
+                                            <i class="ph-fill ph-dots-three-outline"></i>
+                                        </button>
+                                        <div class="dropdown-menu dropdown-menu--md border-0 bg-transparent p-0">
+                                            <div class="card border border-gray-100 rounded-12 box-shadow-custom">
+                                                <div class="card-body p-12">
+                                                    <div class="max-h-200 overflow-y-auto scroll-sm pe-8">
+                                                        <ul>
+                                                            <li class="mb-0">
+                                                                <a (click)="updateProduct(product.id)" class="py-6 text-15 px-8 hover-bg-gray-50 text-gray-300 w-100 rounded-8 fw-normal text-xs d-block text-start">
+                                                                    <span class="text"> <i class="ph ph-pencil me-4"></i> Editar</span>
+                                                                </a>
+                                                            </li>
+                                                            <li class="mb-0">
+                                                                <a (click)="deleteProduct(product.id)" class="py-6 text-15 px-8 hover-bg-gray-50 text-gray-300 w-100 rounded-8 fw-normal text-xs d-block text-start">
+                                                                    <span class="text"> <i class="ph ph-trash me-4"></i> Eliminar</span>
+                                                                </a>
+                                                            </li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                     <span class="d-block mb-16">
-                                        <img *ngIf="product.files[0]" src="{{product.files[0]}}" alt="image">
+                                        <img *ngIf="product.files[0]" src="{{product.files[0]}}" alt="image" style="max-width: 200px; height: 200px; border-radius: 10px;">
                                     </span>
                                     <div class="flex-between gap-4 flex-wrap mt-24" *ngIf="product.codeBarra">
                                         <img [src]="product.codeBarra" alt="Código de Barras" class="imgbarcodeImage">
@@ -107,19 +120,42 @@
                                         <th class="h6 text-gray-300">Nombre</th>
                                         <th class="h6 text-gray-300">Precio</th>
                                         <th class="h6 text-gray-300">Stock</th>
-                                        <th class="h6 text-gray-300">Status</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <tr *ngFor="let product of filteredProducts; let i = index">
                                         <td class="fixed-width">
-                                            <div class="form-check">
-                                                <input class="form-check-input border-gray-200 rounded-4" type="checkbox">
+                                            <div class="dropdown flex-shrink-0">
+                                                <button class="text-gray-400 text-xl d-flex rounded-4 text-end ms-auto" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="background: #dee2e6;">
+                                                    <i class="ph-fill ph-dots-three-outline"></i>
+                                                </button>
+                                                <div class="dropdown-menu dropdown-menu--md border-0 bg-transparent p-0">
+                                                    <div class="card border border-gray-100 rounded-12 box-shadow-custom">
+                                                        <div class="card-body p-12">
+                                                            <div class="max-h-200 overflow-y-auto scroll-sm pe-8">
+                                                                <ul>
+                                                                    <li class="mb-0">
+                                                                        <a (click)="updateProduct(product.id)" class="py-6 text-15 px-8 hover-bg-gray-50 text-gray-300 w-100 rounded-8 fw-normal text-xs d-block text-start">
+                                                                            <span class="text"> <i class="ph ph-pencil me-4"></i> Editar</span>
+                                                                        </a>
+                                                                    </li>
+                                                                    <li class="mb-0">
+                                                                        <a (click)="deleteProduct(product.id)" class="py-6 text-15 px-8 hover-bg-gray-50 text-gray-300 w-100 rounded-8 fw-normal text-xs d-block text-start">
+                                                                            <span class="text"> <i class="ph ph-trash me-4"></i> Eliminar</span>
+                                                                        </a>
+                                                                    </li>
+                                                                </ul>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </td>
+                                        
                                         <td>
                                             <div class="flex-align gap-3">
-                                                <img *ngIf="product.files[0]" src="{{product.files[0]}}" alt="image" style="max-width: 10%;">
+                                                <img *ngIf="product.files[0]" src="{{product.files[0]}}" alt="image" style="max-width: 10%; max-width: 200px; height: 200px; border-radius: 10px;
+">
                                             </div>
                                         </td>
                                         <td>
@@ -130,13 +166,6 @@
                                         </td>
                                         <td>
                                             <span class="h6 mb-0 fw-medium text-gray-300">{{product.stock}}</span>
-                                        </td>
-                                       
-                                        <td>
-                                            <span class="text-13 py-2 px-8 bg-success-50 text-success-600 d-inline-flex align-items-center gap-8 rounded-pill">
-                                                <span class="w-6 h-6 bg-success-600 rounded-circle flex-shrink-0"></span>
-                                                Received
-                                            </span>
                                         </td>
                                     </tr>
                                 </tbody>

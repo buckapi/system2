@@ -23,6 +23,7 @@ export interface PocketBaseError {
   // otras propiedades que puedas necesitar
 }
 export interface Product {
+  id: string;
   name: string;
   price: number;
   barcode: string;
