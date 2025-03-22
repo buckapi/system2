@@ -48,16 +48,16 @@ export interface Product {
   styleUrl: './products.component.css'
 })
 export class ProductsComponent {
+  matchCount: number = 0; // Add this line to declare the matchCount property
+
   private pb: PocketBase;
   private apiUrl = 'https://db.buckapi.lat:8095';
   showForm = false;
   isEditing = false;
-  /* productForm: FormGroup; */
   previewImage: string = 'assets/images/thumbs/setting-profile-img.jpg';
   products: any[] = []; // Changed Product to any[] since Product type is not defined
   products$: any;
-/*   currentProductId: string = '';
- */  currentProductId: string | null = null;
+  currentProductId: string | null = null;
 
   showFilter = false;
   ventas: any[] = [];
@@ -67,7 +67,6 @@ export class ProductsComponent {
   searchQuery: string = ''; // Default search query
   productosFiltrados: any[] = [];
   productos$: any;
-  searchTerm: string = '';
   product = {
     name: '',
     price: 0, // Change to string
@@ -90,6 +89,8 @@ export class ProductsComponent {
   currentPage: number = 1;
   pageSize: number = 50; // Set your desired page size
   totalProducts: number = 0;
+  searchTerm: string = '';
+  filteredProducts: Product[] = [];
 
   constructor(
     public global: GlobalService,
@@ -144,8 +145,11 @@ export class ProductsComponent {
         });
       }); 
     } 
-
-    
+    filterProducts() {
+      this.filteredProducts = this.products.filter(product => 
+          product.name.toLowerCase().includes(this.searchTerm.toLowerCase())
+      );
+  }
     // Implementa la paginación de "Next" y "Previous"
     nextPage() {
       if (this.currentPage * this.pageSize < this.totalProducts) {
@@ -154,6 +158,19 @@ export class ProductsComponent {
       }
     }
     
+    searchTimeout: any; // Declare a timeout variable
+
+onSearchChange(event: Event): void {
+    const inputElement = event.target as HTMLInputElement;
+    const searchTerm = inputElement.value;
+    console.log('Término de búsqueda:', searchTerm); // For debugging
+
+    clearTimeout(this.searchTimeout); // Clear the previous timeout
+    this.searchTimeout = setTimeout(() => {
+        this.searchTerm = searchTerm; // Update the searchTerm
+        this.filterProducts(); // Call the filtering method
+    }, 300); // Adjust the time as necessary
+}
     prevPage() {
       if (this.currentPage > 1) {
         this.currentPage--;

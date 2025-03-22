@@ -1,0 +1,14 @@
+.elevate {
+    transition: transform 0.2s, box-shadow 0.2s;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); /* Reduced shadow */
+}
+
+.elevate:hover {
+    transform: translateY(4px); /* Reduced elevation */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2); /* Reduced shadow */
+}
+
+.elevate:active {
+    transform: translateY(0px); /* No downward movement on click */
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15); /* Reduced shadow */
+}

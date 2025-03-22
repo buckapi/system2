@@ -1,281 +1,338 @@
 <div class="dashboard-main-wrapper">
-  <div class="card mt-24">
-    <div class="card-body">
-      <div class="breadcrumb mb-24">
-        <ul class="flex-align gap-4">
-          <li><a (click)="global.setRoute('home')" style="cursor: pointer;"
-              class="text-gray-200 fw-normal text-15 hover-text-main-600">Inicio</a></li>
-          <li> <span class="text-gray-500 fw-normal d-flex"><i class="ph ph-caret-right"></i></span> </li>
-          <li><span class="text-main-600 fw-normal text-15">Inventario</span></li>
-        </ul>
-      </div>
-      <!-- Header y botón de agregar -->
-      <div class="d-flex align-items-center justify-content-between">
-        <h4 [hidden]="showForm" class="mb-20"> Productos</h4>
-        <button *ngIf="!showForm" (click)="showNewProduct()" type="button"
-          class="btn btn-main text-sm btn-sm px-24 rounded-pill py-12 d-flex align-items-center gap-2">
-          <i class="ph ph-plus me-4"></i>
-          Agregar nuevo producto
-        </button>
-      </div>
-
-      <!-- Filtro de busqueda -->
-      <div class="card mt-24">
+    <div class="card mt-24">
         <div class="card-body">
-<!--           <button (click)="updateProductBarcodes()">Actualizar Códigos de Barras</button>
- -->
-<!--  <button (click)="optimizeAndUpdateImages()">Optimizar y Actualizar Imágenes</button>
- -->
-
-          <div class="row g-20" [hidden]="showForm">
-            <div class="col-xxl-3 col-lg-4 col-sm-6" *ngFor="let product of (realtimeProducts.products$ | async); let i = index">
-              <div class="card border border-gray-100">
-                <!-- Mostrar el código de barras -->
-                <div class="flex-between gap-4 flex-wrap mt-24" *ngIf="product.codeBarra">
-                  <img [src]="product.codeBarra" alt="Código de Barras" class="imgbarcodeImage">
-                </div>
-                <div class="card-body p-8">
-                  <a class="bg-main-100 rounded-8 overflow-hidden text-center mb-8 h-164 flex-center p-8">
-                    <!-- <img *ngIf="product.file" [src]="product.file" alt="Imagen del Producto" > -->
-                    <img *ngIf="product.files[0]" src="{{product.files[0]}}" alt="image">
-                    <button type="button" (click)="updateProduct(product.id)"
-                      class="follow-btn py-2 px-8 flex-align gap-4 text-13 fw-medium text-black border border-black rounded-pill position-absolute inset-block-start-0 inset-inline-end-0 mt-8 me-8 transition-1">
-                      <i class="ph ph-pencil d-flex"></i>
-                      <span class="text">Editar</span>
-                    </button>
-                    
-                    <button type="button"
-                      class="follow-btn py-2 px-8 flex-align gap-4 text-13 fw-medium text-black border border-black rounded-pill position-absolute inset-block-start-0 inset-inline-end-0 mt-48 me-8 transition-1">
-                      <i class="ph ph-trash d-flex"></i>
-                      <span class="text" (click)="deleteProduct(product.id)">Eliminar</span>
-                    </button>
-                  </a>
-                  
-                  <div class="p-8">
-                    <span class="text-13 py-2 px-10 rounded-pill bg-success-50 text-success-600 mb-16">{{product.idCategoria.name}}</span>
-                    <h5 class="mb-0"><a class="hover-text-main-600">{{product.name}}</a></h5>
-                    
-                    <div class="flex-align gap-8 flex-wrap mt-16">
-                      <div>
-                        <span class="text-gray-600 text-13"><b> Descripción: </b> 
-                          <a class="fw-semibold text-gray-400 hover-text-main-400 hover-text-decoration-underline">{{product.description}}</a>
-                        </span>
-                      </div>
-                    </div>
-                    
-                    <div class="flex-align gap-8 mt-12 pt-12 border-top border-gray-100">
-                      <div class="flex-align gap-4">
-                        <span class="text-sm text-main-600 d-flex"><i class="ph ph-tag"></i></span>
-                        <span class="text-13 text-gray-600"><b>Unidad:</b> {{product.stock}}</span>
-                      </div>
-                      <div class="flex-align gap-4">
-                        <span class="text-sm text-main-600 d-flex"><i class="ph ph-money"></i></span>
-                        <span class="text-13 text-gray-600"><b>Precio:</b> ₡ {{product.price}}</span>
-                      </div>
-                    </div>
-                    
-                    <div class="flex-between gap-4 flex-wrap mt-24">
-                      <span class="text-13 fw-bold text-gray-600">Stock: {{product.stock}}</span>
-                    </div>
+            <div class="breadcrumb-with-buttons mb-24 flex-between flex-wrap gap-8">
+                <!-- Breadcrumb Start -->
+                <div class="breadcrumb mb-24">
+                    <ul class="flex-align gap-4">
+                      <li><a (click)="global.setRoute('home')" style="cursor: pointer;"
+                          class="text-gray-200 fw-normal text-15 hover-text-main-600">Inicio</a></li>
+                      <li> <span class="text-gray-500 fw-normal d-flex"><i class="ph ph-caret-right"></i></span> </li>
+                      <li><span class="text-main-600 fw-normal text-15">Inventario de Productos</span></li>
+                    </ul>
                   </div>
-                </div>
                 
-              </div>
             </div>
-            <div class="pagination-controls">
-              <button (click)="prevPage()" [disabled]="currentPage === 1">Previous</button>
-              <span>Page {{currentPage}}</span>
-              <button (click)="nextPage()" [disabled]="currentPage * pageSize >= totalProducts">Next</button>
-            </div>
-            <!-- <div class="flex-between flex-wrap gap-8 mt-20">
-              <a class="btn btn-outline-gray rounded-pill py-9 flex-align gap-4">
-                  <span class="d-flex text-xl"><i class="ph ph-arrow-left"></i></span> 
-                  anterior
-              </a>
-              <ul class="pagination flex-align flex-wrap">
-                  <li class="page-item active">
-                      <a class="page-link h-44 w-44 flex-center text-15 rounded-8 fw-medium" href="mentors.html#">1</a>
-                  </li>
-                  <li class="page-item">
-                      <a class="page-link h-44 w-44 flex-center text-15 rounded-8 fw-medium" href="mentors.html#">2</a>
-                  </li>
-                  <li class="page-item">
-                      <a class="page-link h-44 w-44 flex-center text-15 rounded-8 fw-medium" href="mentors.html#">3</a>
-                  </li>
-                  <li class="page-item">
-                      <a class="page-link h-44 w-44 flex-center text-15 rounded-8 fw-medium" href="mentors.html#">...</a>
-                  </li>
-                  <li class="page-item">
-                      <a class="page-link h-44 w-44 flex-center text-15 rounded-8 fw-medium" href="mentors.html#">8</a>
-                  </li>
-                  <li class="page-item">
-                      <a class="page-link h-44 w-44 flex-center text-15 rounded-8 fw-medium" href="mentors.html#">9</a>
-                  </li>
-                  <li class="page-item">
-                      <a class="page-link h-44 w-44 flex-center text-15 rounded-8 fw-medium" href="mentors.html#">10</a>
-                  </li>
-              </ul>
-              <a  class="btn btn-outline-main rounded-pill py-9 flex-align gap-4">
-                  Siguiente <span class="d-flex text-xl"><i class="ph ph-arrow-right"></i></span> 
-              </a>
-          </div> -->
-          </div>
-        </div>
-      </div>
+ 
+            <!-- Card Start -->
+            <div class="card">
+                <!-- Card Header Start -->
+                <div class="card-header border-bottom border-gray-100">
+                    <div class="flex-between flex-wrap gap-8">
+                        <!-- <form action="" class="w-350 d-sm-block d-none">
+                            <div class="position-relative">
+                                <button 
+                                type="submit" 
+                                class="input-icon text-xl d-flex text-gray-100 pointer-event-none">
+                                <i class="ph ph-magnifying-glass"></i>
+                            </button> 
+                                <input 
+                                type="text" 
+                                class="form-control ps-40 h-40 border-transparent focus-border-main-600 bg-main-50 rounded-pill placeholder-15" 
+                                placeholder="Buscar productos" 
+                                [(ngModel)]="searchTerm" 
+                                (input)="filterProducts()">                            </div>
+                        </form> -->
+                        <div>
+                            <input 
+                            class="form-control ps-40 h-40 border-transparent focus-border-main-600 bg-main-50 rounded-pill placeholder-15" 
 
-      <!-- Formulario de Nuevo producto -->
-      <div class="card mt-24" [hidden]="!showForm || isEditing">
-        <div class="card-header border-bottom">
-          <h4 class="mb-4">Nuevo producto</h4>
-          <p class="text-gray-600 text-15">Ingrese todos los datos del producto</p>
-        </div>
-        <div class="card-body">
-          <form [formGroup]="addProductForm" (ngSubmit)="onSubmit()" #productFormDir="ngForm">
-            <div class="row gy-4">
-              <div class="col-sm-6 col-xs-6">
-                <label for="category" class="form-label mb-8 h6">Categoría</label>
-                <div class="input-group">
-                  <select formControlName="idCategoria" class="form-select py-11" id="category">
-                    <option value="">Seleccione una categoría</option>
-                    <option *ngFor="let category of (realtimeCategorias.categorias$ | async)" [value]="category.id">
-                      {{category.name}}
-                    </option>
-                  </select>
-                  <button type="button" class="btn btn-outline-main" (click)="openNewCategoryModal()">
-                    <i class="ph ph-plus"></i>
-                  </button>
-                </div>
-              </div>
-              <div class="col-sm-6 col-xs-6">
-                <label for="name" class="form-label mb-8 h6">Nombre</label>
-                <input formControlName="name" type="text" class="form-control py-11" id="name" placeholder="Nombre del producto">
-              </div>
-              <div class="col-sm-6 col-xs-6">
-                <label for="description" class="form-label mb-8 h6">Descripcion</label>
-                <input formControlName="description" type="text" class="form-control py-11" id="description" placeholder="Ingrese descripcion">
-              </div>
-              <div class="col-sm-4 col-xs-4">
-                <label for="stock" class="form-label mb-8 h6">Unidad</label>
-                <input formControlName="stock" type="number" class="form-control py-11" id="stock" placeholder="Ingrese unidades">
-              </div>
-              <div class="col-sm-4 col-xs-4">
-                <label for="price" class="form-label mb-8 h6">Precio</label>
-                <input formControlName="price" type="number" class="form-control py-11" id="price" placeholder="Ingrese precio">
-              </div>
-              <div class="col-sm-4 col-xs-4">
-                <label for="color" class="form-label mb-8 h6">Color</label>
-                <input formControlName="color" type="text" class="form-control py-11" id="color" placeholder="Ingrese color">
-              </div>
-            
-              <div class="clearfix">
-                <div class="custom-file-upload">
-                  <div *ngIf="selectedImage" class="image-preview">
-                    <img [src]="selectedImagePrev" alt="Selected Image" class="img-thumbnail"
-                         style="border-radius: 50%; cursor: pointer; border: 5px solid #3ba5a8; box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); transition: box-shadow 0.3s ease, transform 0.3s ease; max-width: 150px; max-height: 150px;" />
-                  </div>
-                  <input #imageUpload id="imageUpload" type="file" (change)="onImageChange($event)" class="form-control"
-                         accept="image/*" style="display: none;" />
-                  <label for="imageUpload" class="btn mb-2 me-2 btn-primary">
-                    <i class="fa-solid fa-search me-2"></i>Imágen de producto
-                  </label>
-                  <div *ngIf="!selectedImage" class="text-danger">* Por favor, suba una imagen.</div>
-                </div>
-              </div>
-              <div class="col-lg-12 col-sm-6 col-xs-6">
-                  <div class="flex-align justify-content-end gap-8">
-                    <button type="button" (click)="showForm=false" class="btn btn-outline-main bg-main-100 border-main-100 text-main-600 rounded-pill py-3 px-4">Cancelar</button>
-                    <button type="submit" class="btn btn-main rounded-pill py-3 px-4" [disabled]="!addProductForm.valid">Guardar y generar código de barras</button>
-                  </div>
-              </div>
-            </div>
-          </form>
-        </div>
-      </div>
-      <div class="card mt-24" [hidden]="!showForm || !isEditing">
-        <div class="card-header border-bottom">
-          <h4 class="mb-4">Editar producto</h4>
-          <p class="text-gray-600 text-15">Ingrese todos los datos del producto</p>
-        </div>
-
-        <div class="card-body" *ngIf="showForm">
-          <form [formGroup]="addProductForm" (ngSubmit)="submitProductForm()" #productFormDir="ngForm" >
-            <div class="row gy-4">
-              <div class="col-sm-6 col-xs-6">
-                <label for="category" class="form-label mb-8 h6">Categoría</label>
-                <div class="input-group">
-                  <select formControlName="idCategoria" class="form-select py-11" id="category">
-                    <option value="">Seleccione una categoría</option>
-                    <option *ngFor="let category of (realtimeCategorias.categorias$ | async)" [value]="category.id">
-                      {{category.name}}
-                    </option>
-                  </select>
-                  <button type="button" class="btn btn-outline-main" (click)="openNewCategoryModal()">
-                    <i class="ph ph-plus"></i>
-                  </button>
-                </div>
-              </div>
-              <div class="col-sm-6 col-xs-6">
-                <label for="name" class="form-label mb-8 h6">Nombre</label>
-                <input formControlName="name" type="text" class="form-control py-11" id="name"
-                  placeholder="Nombre del producto">
-              </div>
-             
-              <div class="col-sm-6 col-xs-6">
-                <label for="description" class="form-label mb-8 h6">Descripcion</label>
-                <input formControlName="description" type="text" class="form-control py-11" id="description"
-                  placeholder="Ingrese descripcion">
-              </div>
-              <div class="col-sm-4 col-xs-4">
-                <label for="stock" class="form-label mb-8 h6">Unidades</label>
-                <input formControlName="stock" type="number" class="form-control py-11" id="stock" placeholder="Cantidad en stock" min="0">
-              </div>
-              <div class="col-sm-4 col-xs-4">
-                <label for="price" class="form-label mb-8 h6">Precio</label>
-                <input formControlName="price" type="number" class="form-control py-11" id="price"
-                  placeholder="Ingrese precio">
-              </div>
-              <div class="col-sm-4 col-xs-4">
-                <label for="color" class="form-label mb-8 h6">Color</label>
-                <input formControlName="color" type="text" class="form-control py-11" id="color"
-                  placeholder="Ingrese color">
-              </div>
-
-              <div class="clearfix">
-                <div class="custom-file-upload">
-                    <div *ngIf="selectedImagePrev" class="image-preview">
-                        <img [src]="selectedImagePrev" alt="Selected Image" class="img-thumbnail"
-                             style="border-radius: 50%; cursor: pointer; border: 5px solid #3ba5a8; box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); transition: box-shadow 0.3s ease, transform 0.3s ease; max-width: 150px; max-height: 150px;" />
+                                type="text" 
+                                placeholder="Buscar productos..." 
+                                (input)="onSearchChange($event)" 
+                            />
+                            <p *ngIf="matchCount > 0">{{ matchCount }} productos encontrados</p>
+                            
+                        </div>
+                        <div class="flex-align gap-8 flex-wrap">
+                            <div class="position-relative text-gray-500 flex-align gap-4 text-13">
+                                <span class="text-inherit">Vistas </span>
+                                <div class="position-relative">
+                                    <div class="flex-align gap-8">
+                                        <button type="button" class="list-view-btn text-gray-200 text-2xl">
+                                            <i class="ph ph-rows"></i>
+                                        </button>
+                                        <button type="button" class="grid-view-btn active text-gray-200 text-2xl">
+                                            <i class="ph ph-squares-four"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="d-flex align-items-center justify-content-between">
+                                <button *ngIf="!showForm" (click)="showNewProduct()" type="button"
+                                  class="btn btn-main text-sm btn-sm px-24 rounded-pill py-12 d-flex align-items-center gap-2">
+                                  <i class="ph ph-plus me-4"></i>
+                                  Agregar nuevo producto
+                                </button>
+                              </div>
+                        </div>
                     </div>
-                    <input #imageUpload id="imageUpload" type="file" (change)="onImageChange($event)" class="form-control"
-                           accept="image/*" style="display: none;" />
-                    <label for="imageUpload" class="btn mb-2 me-2 btn-primary">
-                        <i class="fa-solid fa-search me-2"></i>Imágen de producto
-                    </label>
-                    <div *ngIf="!selectedImagePrev" class="text-danger">* Por favor, suba una imagen.</div>
                 </div>
-            </div>
+                <!-- Card Header End -->
 
-              <div class="col-12">
-                <div class="flex-align justify-content-end gap-8">
-                  <button type="button" (click)="showForm=false"
-                    class="btn btn-outline-main bg-main-100 border-main-100 text-main-600 rounded-pill py-9">Cancelar</button>
-                  <button type="submit" class="btn btn-main rounded-pill py-9"
-                 [disabled]="addProductForm.invalid || !currentProductId">Guardar Cambios</button>
+                <div class="card-body p-0">
+                    <!-- Grid View Start -->
+                    <div class="grid-view py-20" [hidden]="showForm">
+                        <div class="resource-item-wrapper px-24" >
+                            <!-- <div class="resource-item" *ngFor="let product of (realtimeProducts.products$ | async); let i = index"> -->
+                                <div class="resource-item" *ngFor="let product of filteredProducts; let i = index">
+                                <label for="checkbox49" class="">
+                                    <span class="d-block mb-16">
+                                        <img *ngIf="product.files[0]" src="{{product.files[0]}}" alt="image">
+                                    </span>
+                                    <div class="flex-between gap-4 flex-wrap mt-24" *ngIf="product.codeBarra">
+                                        <img [src]="product.codeBarra" alt="Código de Barras" class="imgbarcodeImage">
+                                    </div>
+                                    <span class="d-block text-gray-400 text-15">{{product.name}}</span>
+                                    <span class="d-block text-gray-200 text-15">{{product.stock}}</span>
+                                    <span class="d-block text-gray-200 text-15">{{product.price}}</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Grid View End -->
+
+                    <!-- List View Start -->
+                    <div class="list-view d-none" [hidden]="showForm">
+                        <div class="card-body p-0 overflow-x-auto scroll-sm scroll-sm-horizontal">
+                            <table id="studentTable" class="table table-striped style-three w-100">
+                                <thead>
+                                    <tr>
+                                        <th class="fixed-width">
+                                            <div class="form-check">
+                                                <input class="form-check-input border-gray-200 rounded-4" type="checkbox" id="selectAll">
+                                            </div>
+                                        </th>
+                                        <th class="h6 text-gray-300">Imagen</th>
+                                        <th class="h6 text-gray-300">Nombre</th>
+                                        <th class="h6 text-gray-300">Precio</th>
+                                        <th class="h6 text-gray-300">Stock</th>
+                                        <th class="h6 text-gray-300">Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr *ngFor="let product of filteredProducts; let i = index">
+                                        <td class="fixed-width">
+                                            <div class="form-check">
+                                                <input class="form-check-input border-gray-200 rounded-4" type="checkbox">
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="flex-align gap-3">
+                                                <img *ngIf="product.files[0]" src="{{product.files[0]}}" alt="image" style="max-width: 10%;">
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span class="h6 mb-0 fw-medium text-gray-300">{{product.name}}</span>
+                                        </td>
+                                        <td>
+                                            <span class="h6 mb-0 fw-medium text-gray-300">{{product.price}}</span>
+                                        </td>
+                                        <td>
+                                            <span class="h6 mb-0 fw-medium text-gray-300">{{product.stock}}</span>
+                                        </td>
+                                       
+                                        <td>
+                                            <span class="text-13 py-2 px-8 bg-success-50 text-success-600 d-inline-flex align-items-center gap-8 rounded-pill">
+                                                <span class="w-6 h-6 bg-success-600 rounded-circle flex-shrink-0"></span>
+                                                Received
+                                            </span>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <!-- List View End -->
                 </div>
-              </div>
+
+                <!-- Formulario de Nuevo producto -->
+                <div class="card mt-24" [hidden]="!showForm || isEditing">
+                    <div class="card-header border-bottom">
+                    <h4 class="mb-4">Nuevo producto</h4>
+                    <p class="text-gray-600 text-15">Ingrese todos los datos del producto</p>
+                    </div>
+                    <div class="card-body">
+                    <form [formGroup]="addProductForm" (ngSubmit)="onSubmit()" #productFormDir="ngForm">
+                        <div class="row gy-4">
+                        <div class="col-sm-6 col-xs-6">
+                            <label for="category" class="form-label mb-8 h6">Categoría</label>
+                            <div class="input-group">
+                            <select formControlName="idCategoria" class="form-select py-11" id="category">
+                                <option value="">Seleccione una categoría</option>
+                                <option *ngFor="let category of (realtimeCategorias.categorias$ | async)" [value]="category.id">
+                                {{category.name}}
+                                </option>
+                            </select>
+                            <button type="button" class="btn btn-outline-main" (click)="openNewCategoryModal()">
+                                <i class="ph ph-plus"></i>
+                            </button>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-xs-6">
+                            <label for="name" class="form-label mb-8 h6">Nombre</label>
+                            <input formControlName="name" type="text" class="form-control py-11" id="name" placeholder="Nombre del producto">
+                        </div>
+                        <div class="col-sm-6 col-xs-6">
+                            <label for="description" class="form-label mb-8 h6">Descripcion</label>
+                            <input formControlName="description" type="text" class="form-control py-11" id="description" placeholder="Ingrese descripcion">
+                        </div>
+                        <div class="col-sm-4 col-xs-4">
+                            <label for="stock" class="form-label mb-8 h6">Unidad</label>
+                            <input formControlName="stock" type="number" class="form-control py-11" id="stock" placeholder="Ingrese unidades">
+                        </div>
+                        <div class="col-sm-4 col-xs-4">
+                            <label for="price" class="form-label mb-8 h6">Precio</label>
+                            <input formControlName="price" type="number" class="form-control py-11" id="price" placeholder="Ingrese precio">
+                        </div>
+                        <div class="col-sm-4 col-xs-4">
+                            <label for="color" class="form-label mb-8 h6">Color</label>
+                            <input formControlName="color" type="text" class="form-control py-11" id="color" placeholder="Ingrese color">
+                        </div>
+                        
+                        <div class="clearfix">
+                            <div class="custom-file-upload">
+                            <div *ngIf="selectedImage" class="image-preview">
+                                <img [src]="selectedImagePrev" alt="Selected Image" class="img-thumbnail"
+                                    style="border-radius: 50%; cursor: pointer; border: 5px solid #3ba5a8; box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); transition: box-shadow 0.3s ease, transform 0.3s ease; max-width: 150px; max-height: 150px;" />
+                            </div>
+                            <input #imageUpload id="imageUpload" type="file" (change)="onImageChange($event)" class="form-control"
+                                    accept="image/*" style="display: none;" />
+                            <label for="imageUpload" class="btn mb-2 me-2 btn-primary">
+                                <i class="fa-solid fa-search me-2"></i>Imágen de producto
+                            </label>
+                            <div *ngIf="!selectedImage" class="text-danger">* Por favor, suba una imagen.</div>
+                            </div>
+                        </div>
+                        <div class="col-lg-12 col-sm-6 col-xs-6">
+                            <div class="flex-align justify-content-end gap-8">
+                                <button type="button" (click)="showForm=false" class="btn btn-outline-main bg-main-100 border-main-100 text-main-600 rounded-pill py-3 px-4">Cancelar</button>
+                                <button type="submit" class="btn btn-main rounded-pill py-3 px-4" [disabled]="!addProductForm.valid">Guardar y generar código de barras</button>
+                            </div>
+                        </div>
+                        </div>
+                    </form>
+                    </div>
+                </div>
+                <div class="card mt-24" [hidden]="!showForm || !isEditing">
+                    <div class="card-header border-bottom">
+                    <h4 class="mb-4">Editar producto</h4>
+                    <p class="text-gray-600 text-15">Ingrese todos los datos del producto</p>
+                    </div>
+
+                    <div class="card-body" *ngIf="showForm">
+                    <form [formGroup]="addProductForm" (ngSubmit)="submitProductForm()" #productFormDir="ngForm" >
+                        <div class="row gy-4">
+                        <div class="col-sm-6 col-xs-6">
+                            <label for="category" class="form-label mb-8 h6">Categoría</label>
+                            <div class="input-group">
+                            <select formControlName="idCategoria" class="form-select py-11" id="category">
+                                <option value="">Seleccione una categoría</option>
+                                <option *ngFor="let category of (realtimeCategorias.categorias$ | async)" [value]="category.id">
+                                {{category.name}}
+                                </option>
+                            </select>
+                            <button type="button" class="btn btn-outline-main" (click)="openNewCategoryModal()">
+                                <i class="ph ph-plus"></i>
+                            </button>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-xs-6">
+                            <label for="name" class="form-label mb-8 h6">Nombre</label>
+                            <input formControlName="name" type="text" class="form-control py-11" id="name"
+                            placeholder="Nombre del producto">
+                        </div>
+                        
+                        <div class="col-sm-6 col-xs-6">
+                            <label for="description" class="form-label mb-8 h6">Descripcion</label>
+                            <input formControlName="description" type="text" class="form-control py-11" id="description"
+                            placeholder="Ingrese descripcion">
+                        </div>
+                        <div class="col-sm-4 col-xs-4">
+                            <label for="stock" class="form-label mb-8 h6">Unidades</label>
+                            <input formControlName="stock" type="number" class="form-control py-11" id="stock" placeholder="Cantidad en stock" min="0">
+                        </div>
+                        <div class="col-sm-4 col-xs-4">
+                            <label for="price" class="form-label mb-8 h6">Precio</label>
+                            <input formControlName="price" type="number" class="form-control py-11" id="price"
+                            placeholder="Ingrese precio">
+                        </div>
+                        <div class="col-sm-4 col-xs-4">
+                            <label for="color" class="form-label mb-8 h6">Color</label>
+                            <input formControlName="color" type="text" class="form-control py-11" id="color"
+                            placeholder="Ingrese color">
+                        </div>
+
+                        <div class="clearfix">
+                            <div class="custom-file-upload">
+                                <div *ngIf="selectedImagePrev" class="image-preview">
+                                    <img [src]="selectedImagePrev" alt="Selected Image" class="img-thumbnail"
+                                        style="border-radius: 50%; cursor: pointer; border: 5px solid #3ba5a8; box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); transition: box-shadow 0.3s ease, transform 0.3s ease; max-width: 150px; max-height: 150px;" />
+                                </div>
+                                <input #imageUpload id="imageUpload" type="file" (change)="onImageChange($event)" class="form-control"
+                                    accept="image/*" style="display: none;" />
+                                <label for="imageUpload" class="btn mb-2 me-2 btn-primary">
+                                    <i class="fa-solid fa-search me-2"></i>Imágen de producto
+                                </label>
+                                <div *ngIf="!selectedImagePrev" class="text-danger">* Por favor, suba una imagen.</div>
+                            </div>
+                        </div>
+
+                        <div class="col-12">
+                            <div class="flex-align justify-content-end gap-8">
+                            <button type="button" (click)="showForm=false"
+                                class="btn btn-outline-main bg-main-100 border-main-100 text-main-600 rounded-pill py-9">Cancelar</button>
+                            <button type="submit" class="btn btn-main rounded-pill py-9"
+                            [disabled]="addProductForm.invalid || !currentProductId">Guardar Cambios</button>
+                            </div>
+                        </div>
+                        </div>
+                    </form>
+                    </div>
+                </div>
+                <div class="card-footer border-top border-gray-100">
+                    <div class="flex-between flex-wrap gap-8 mt-20">
+                        <a  class="btn btn-outline-gray rounded-pill py-9 flex-align gap-4">
+                            <span class="d-flex text-xl"><i class="ph ph-arrow-left"></i></span> 
+                            Anterior
+                        </a>
+
+                        <ul class="pagination flex-align flex-wrap">
+                            <li class="page-item active">
+                                <a class="page-link h-44 w-44 flex-center text-15 rounded-8 fw-medium" >1</a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link h-44 w-44 flex-center text-15 rounded-8 fw-medium" >2</a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link h-44 w-44 flex-center text-15 rounded-8 fw-medium" >3</a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link h-44 w-44 flex-center text-15 rounded-8 fw-medium" >...</a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link h-44 w-44 flex-center text-15 rounded-8 fw-medium" >8</a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link h-44 w-44 flex-center text-15 rounded-8 fw-medium" >9</a>
+                            </li>
+                            <li class="page-item">
+                                <a class="page-link h-44 w-44 flex-center text-15 rounded-8 fw-medium" >10</a>
+                            </li>
+                        </ul>
+                        
+                        <a  class="btn btn-main rounded-pill py-9 flex-align gap-4">
+                            Siguiente <span class="d-flex text-xl"><i class="ph ph-arrow-right"></i></span> 
+                        </a>
+                    </div>
+                </div>
+                <div class="floating-button-container" *ngIf="!showForm">
+                    <button class="floating-button" (click)="showNewProduct()">
+                        +
+                    </button>
+                </div>
             </div>
-          </form>
+            <!-- Card End -->
         </div>
-      </div>
     </div>
-  </div>
-  <div class="floating-button-container" *ngIf="!showForm">
-    <button class="floating-button" (click)="showNewProduct()">
-        +
-    </button>
-    <!-- <div *ngIf="showOptions" class="options-container">
-        <button (click)="openCashModal()">Realizar venta</button>
-        <button (click)="openCashCloseModal()">Cerrar caja</button>
-    </div> -->
-</div>
 </div>
