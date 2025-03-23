@@ -28,7 +28,7 @@ export class RealtimeProductsService {
 
   private subscribeToRealtimeChanges(): void {
     // Obtener todos los registros existentes
-    this.pb.collection('productsInventory').getList(1, 5000).then(records => {
+    this.pb.collection('productsInventory').getList(1, 900).then(records => {
       this.productsSubject.next(records.items);
       
       // Suscribirse a los cambios en tiempo real
