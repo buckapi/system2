@@ -121,51 +121,44 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr *ngFor="let operacion of operaciones">
+                                        <tr *ngFor="let venta of (realtimeVentas.ventas$ | async)">
                                             <td class="fixed-width">
                                                 <div class="form-check">
                                                     <input class="form-check-input border-gray-200 rounded-4" type="checkbox">
                                                 </div>
                                             </td>
                                             <td>
-                                                <span class="h6 mb-0 fw-medium text-gray-300">{{operacion.fecha | date:'dd/MM/yyyy'}}</span>
+                                                <span class="h6 mb-0 fw-medium text-gray-300">{{venta.date | date:'dd/MM/yyyy'}}</span>
                                             </td>
                                             <td>
                                                 <div class="flex-align gap-8">
                                                     <span class="h6 mb-0 fw-medium text-gray-300">
-                                                        {{operacion.tipo === 'pagar' ? operacion.proveedor : operacion.cliente}} - 
-                                                        {{operacion.nota}}
+                                                        {{venta.customer}} - 
+                                                        {{venta.nota}}
                                                     </span>
                                                 </div>
                                             </td>
                                             <td>
                                                 <span class="h6 mb-0 fw-medium text-gray-300">
-                                                    {{operacion.tipo === 'pagar' ? 'Cuenta por Pagar' : 'Cuenta por Cobrar'}}
+                                                    {{venta.metodoPago}}
                                                 </span>
                                             </td>
                                             <td>
-                                                <span class="h6 mb-0 fw-medium text-danger-600" *ngIf="operacion.tipo === 'pagar'">
-                                                    ₡{{operacion.monto | number:'1.2-2'}}
+                                                <span class="h6 mb-0 fw-medium text-danger-600">
+                                                    ₡{{venta.total | number:'1.2-2'}}
                                                 </span>
-                                                <span *ngIf="operacion.tipo !== 'pagar'">-</span>
-                                            </td>
-                                            <td>
-                                                <span class="h6 mb-0 fw-medium text-success-600" *ngIf="operacion.tipo === 'cobrar'">
-                                                    ₡{{operacion.monto | number:'1.2-2'}}
-                                                </span>
-                                                <span *ngIf="operacion.tipo !== 'cobrar'">-</span>
                                             </td>
                                             <td>
                                                 <span [class]="'text-13 py-2 px-8 d-inline-flex align-items-center gap-8 rounded-pill ' + 
-                                                      (operacion.estado === 'pendiente' ? 'bg-warning-50 text-warning-600' : 'bg-success-50 text-success-600')">
+                                                      (venta.estado === 'pendiente' ? 'bg-warning-50 text-warning-600' : 'bg-success-50 text-success-600')">
                                                     <span [class]="'w-6 h-6 rounded-circle flex-shrink-0 ' + 
-                                                          (operacion.estado === 'pendiente' ? 'bg-warning-600' : 'bg-success-600')"></span>
-                                                    {{operacion.estado === 'pendiente' ? 'Pendiente' : 'Completado'}}
+                                                          (venta.estado === 'pendiente' ? 'bg-warning-600' : 'bg-success-600')"></span>
+                                                    {{venta.estado === 'pendiente' ? 'Pendiente' : 'Completado'}}
                                                 </span>
                                             </td>
                                             <td>
                                                 <button class="bg-main-50 text-main-600 py-2 px-14 rounded-pill hover-bg-main-600 hover-text-white"
-                                                        (click)="verDetalles(operacion)">
+                                                        (click)="verDetalles(venta)">
                                                     Ver Detalles
                                                 </button>
                                             </td>
@@ -306,6 +299,7 @@
                         <th>Método de Pago</th>
                         <th>Fecha de Vencimiento</th>
                         <th>Nota</th>
+                        <th>Acciones</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -316,6 +310,12 @@
                                 <td style="color: black;">{{ cuentasxpagar.metodoPago }}</td>
                                 <td style="color: black;">{{ cuentasxpagar.fechaVencimiento }}</td>
                                 <td style="color: black;">{{ cuentasxpagar.nota }}</td>
+                                <td>
+                                    <button class="bg-main-50 text-main-600 py-2 px-14 rounded-pill hover-bg-main-600 hover-text-white"
+                                            >
+                                        Realizardo
+                                    </button>
+                                </td>
                             </tr>
                         </ng-container>
                     </tbody>

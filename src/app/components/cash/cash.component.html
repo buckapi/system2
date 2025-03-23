@@ -450,5 +450,52 @@
             <button (click)="openCashCloseModal()">Cerrar caja</button>
         </div>
     </div>
-    
+    <div *ngIf="venta">
+        <div id="invoice-{{venta.id}}" class="factura-preview">
+            <!-- Logo y encabezado -->
+            <div class="text-center mb-4">
+                <img src="assets/images/logo/logo.png" alt="Logo" class="mb-3" style="max-height: 80px;">
+                <h4>Factura</h4>
+            </div>
+            <!-- Información de la factura -->
+            <div class="mt-3">
+                <div class="fecha-hora">
+                    <span class="fecha">{{fechaActual | date:'dd/MM/yyyy'}}</span> /
+                    <span class="hora ms-2">{{horaActual}}</span>
+                </div>
+            </div>
+            <div class="mb-3">
+                <strong>Cliente:</strong> {{venta.customer}}
+            </div>
+            <div class="mb-3">
+                <strong>Método de pago:</strong> {{venta.metodoPago}}
+            </div>
+            <!-- Tabla de productos -->
+            <table class="table table-sm">
+                <thead>
+                    <tr>
+                        <th>Producto</th>
+                        <th>Cant.</th>
+                        <th>Precio/Unidad</th>
+                        <th>Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let producto of venta.productosSeleccionados">
+                        <td>{{producto.name}}</td>
+                        <td>{{producto.cantidad}}</td>
+                        <td>₡ {{producto.price | number:'1.2-2'}}</td>
+                        <td>₡ {{producto.price * producto.cantidad | number:'1.2-2'}}</td>
+                    </tr>
+                </tbody>
+            </table>
+            <!-- Totales -->
+            <div class="totales mt-3">
+                <div class="d-flex justify-content-between mb-2">
+                    <span>Total:</span>
+                    <strong>₡ {{venta.total | number:'1.2-2'}}</strong>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>

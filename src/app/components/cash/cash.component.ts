@@ -656,6 +656,7 @@ generatePDF(venta: any) {
   if (element) {
     html2canvas(element).then(canvas => {
       const pdf = new jsPDF('p', 'mm', 'a4');
+      pdf.text(`Fecha ${venta.date}`, 10, 10);
       pdf.text(`Factura para ${venta.customer}`, 10, 10);
       pdf.text(`Total: ₡ ${venta.total.toFixed(2)}`, 10, 20);
       pdf.save(`factura-${venta.id}.pdf`);
@@ -667,44 +668,8 @@ generatePDF(venta: any) {
   }
   
 }
-  /* generatePDF(venta: any) {
-    // Crear un nuevo objeto jsPDF con tamaño personalizado (80 mm de ancho)
-    const pdf = new jsPDF('p', 'mm', [80, 200]); // 80 mm de ancho, altura dinámica
-  
-    // Agregar la fecha y hora
-    pdf.setFontSize(10);
-    pdf.text(`Fecha: ${new Date().toLocaleDateString()}`, 10, 10);
-    pdf.text(`Hora: ${new Date().toLocaleTimeString()}`, 10, 15);
-  
-    // Agregar información del cliente
-    pdf.text(`Cliente: ${venta.customer}`, 10, 25);
-    pdf.text(`Método de pago: ${venta.metodoPago}`, 10, 30);
-  
-    // Agregar la tabla de productos
-    let y = 40; // Posición vertical inicial para la tabla
-    pdf.setFontSize(8);
-    pdf.text('Producto', 10, y);
-    pdf.text('Cant.', 30, y);
-    pdf.text('Precio/Unidad', 45, y);
-    pdf.text('Total', 65, y);
-    y += 5;
-  
-    // Recorrer los productos y agregarlos al PDF
-    venta.productosSeleccionados.forEach((producto: any) => {
-      pdf.text(producto.name, 10, y);
-      pdf.text(producto.cantidad.toString(), 30, y);
-      pdf.text(`₡ ${producto.price.toFixed(2)}`, 45, y);
-      pdf.text(`₡ ${(producto.price * producto.cantidad).toFixed(2)}`, 65, y);
-      y += 5; // Aumentar la posición vertical para el siguiente producto
-    });
-  
-    // Agregar el total
-    pdf.setFontSize(10);
-    pdf.text(`Total: ₡ ${venta.total.toFixed(2)}`, 10, y + 10);
-  
-    // Guardar el PDF con un nombre específico
-    pdf.save(`factura-${venta.id}.pdf`);
-  } */
+
+
 
 /*   generatePDF(venta: any) {
     const element = document.getElementById(`invoice-${venta.id}`);
