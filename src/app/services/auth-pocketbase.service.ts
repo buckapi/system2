@@ -17,7 +17,7 @@ export class AuthPocketbaseService {
     public global: GlobalService
    ) 
   { 
-    this.pb = new PocketBase('https://db.buckapi.lat:8095');
+    this.pb = new PocketBase('https://db.buckapi.lat:8088');
   }
     generateRandomPassword(length: number = 8): string {
       const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';

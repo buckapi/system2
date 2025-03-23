@@ -1,31 +1,4 @@
-/* import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
-import PocketBase from 'pocketbase';
-import { Observable } from 'rxjs';
 
-@Injectable({
-  providedIn: 'root'
-})
-export class ProductService {
-  private pb = new PocketBase('https://db.buckapi.lat:8095');
-
-  constructor(
-    private http: HttpClient
-  ) {}
-
-  async createProduct(data: any): Promise<any> {
-    try {
-      const record = await this.pb.collection('productsInventory').create(data);
-      return record;
-    } catch (error) {
-      console.error('Error creating product:', error);
-      throw error;
-    }
-  }
-  getProducts(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.pb.baseUrl}/productsInventory`);
-  }
-} */
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { FormBuilder } from '@angular/forms';
@@ -57,9 +30,9 @@ export class ProductService {
     private fb: FormBuilder,
     public global: GlobalService,
   ) {
-    this.pb = new PocketBase('https://db.buckapi.lat:8095'); // Initialize PocketBase
+    this.pb = new PocketBase('https://db.buckapi.lat:8088'); // Initialize PocketBase
 
-    this.baseUrl = 'https://db.buckapi.lat:8095';
+    this.baseUrl = 'https://db.buckapi.lat:8088';
   }
 
   /* createProduct(data: Product): Promise<Product> {

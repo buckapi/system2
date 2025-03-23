@@ -14,7 +14,7 @@ export class RealtimeCategoriasService implements OnDestroy {
     this.categoriasSubject.asObservable();
 
   constructor() {
-    this.pb = new PocketBase('https://db.buckapi.lat:8095');
+    this.pb = new PocketBase('https://db.buckapi.lat:8088');
     this.subscribeToCategorias();
   }
 

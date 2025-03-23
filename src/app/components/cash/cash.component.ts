@@ -148,7 +148,7 @@ handleCierreCaja() {
     const fileName = record['qrCodeFileName'] || 'default.png'; // Usa un valor por defecto si es necesario
     const fileId = record['qrCodeId'] || 'defaultId'; // Usa un valor por defecto si es necesario
     const token = record['token'] || 'defaultToken'; // Usa un valor por defecto si es necesario
-    const url = `https://db.buckapi.lat:8095/api/files/42cfd1ktjm69ust/${fileId}/${fileName}?token=${token}`;
+    const url = `https://db.buckapi.lat:8088/api/files/42cfd1ktjm69ust/${fileId}/${fileName}?token=${token}`;
     console.log('Generated QR Code URL:', url); // Para debugging
     return url;
   }
@@ -283,7 +283,7 @@ totalVenta() {
 }
 
 getImageUrl(imageName: string): string {
-const baseUrl = 'https://db.buckapi.lat:8095/api/files/';
+const baseUrl = 'https://db.buckapi.lat:8088/api/files/';
 return `${baseUrl}${imageName}?token=YOUR_TOKEN_HERE`; // Asegúrate de reemplazar con el token correcto
 }
 async procesarPago() {
@@ -444,7 +444,7 @@ actualizarStockProductos() {
 
  processSaleWithQRCode(venta: any): Promise<void> {
   return new Promise((resolve, reject) => {
-    const pb = new PocketBase('https://db.buckapi.lat:8095');
+    const pb = new PocketBase('https://db.buckapi.lat:8088');
 
     QRCode.toDataURL(`venta-${venta.id}`).then((qrCodeUrl) => {
       const byteCharacters = atob(qrCodeUrl.split(',')[1]);

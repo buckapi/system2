@@ -52,7 +52,7 @@ export class ProductsComponent {
   matchCount: number = 0; // Add this line to declare the matchCount property
 
   private pb: PocketBase;
-  private apiUrl = 'https://db.buckapi.lat:8095';
+  private apiUrl = 'https://db.buckapi.lat:8088';
   showForm = false;
   isEditing = false;
   previewImage: string = 'assets/images/thumbs/setting-profile-img.jpg';
@@ -105,10 +105,10 @@ export class ProductsComponent {
     public productService: ProductService
   ) {
   
-    this.realtimeProducts.products$.subscribe((products) => {
+  /*   this.realtimeProducts.products$.subscribe((products) => {
       this.global.productos = products;
-    });
-    this.pb = new PocketBase(this.apiUrl);
+    });*/
+    this.pb = new PocketBase(this.apiUrl); 
     this.addProductForm = this.fb.group({
       name: [''],
       price: [''],

@@ -14,7 +14,7 @@ export class RealtimeGastosService implements OnDestroy {
     this.gastosSubject.asObservable();
 
   constructor() {
-    this.pb = new PocketBase('https://db.buckapi.lat:8095');
+    this.pb = new PocketBase('https://db.buckapi.lat:8088');
     this.subscribeToGastos();
   }
 
