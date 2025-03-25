@@ -21,7 +21,7 @@ export class RealtimeProductsService {
   );
 
   constructor() {
-    this.pb = new PocketBase('https://db.buckapi.lat:8088');
+    this.pb = new PocketBase('https://db.buckapi.lat:8095');
     this.initialize();
   }
 

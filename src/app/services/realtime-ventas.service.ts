@@ -13,7 +13,7 @@ export class RealtimeVentasService implements OnDestroy {
     this.ventasSubject.asObservable();
 
   constructor() {
-    this.pb = new PocketBase('https://db.buckapi.lat:8088');
+    this.pb = new PocketBase('https://db.buckapi.lat:8095');
     this.subscribeToVentas();
   }
 

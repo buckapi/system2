@@ -47,7 +47,7 @@ export interface cobranzaInterface{
   providedIn: 'root'
 })
 export class DataApiService {
-  private baseUrl = 'https://db.buckapi.lat:8088/api';
+  private baseUrl = 'https://db.buckapi.lat:8095/api';
 
   constructor(
     private http: HttpClient,           
@@ -83,14 +83,14 @@ export class DataApiService {
 		);
 	  } */
    /*  updateProduct(productId: string, product: productInterface): Observable<productInterface> {
-      return this.http.put<productInterface>(`https://db.buckapi.lat:8088/productsInventory/${productId}`, product);
+      return this.http.put<productInterface>(`https://db.buckapi.lat:8095/productsInventory/${productId}`, product);
   } */
   /* updateProduct(productId: string, product: productInterface): Observable<productInterface> {
-    const url = `https://db.buckapi.lat:8088/productsInventory/${productId}`;
+    const url = `https://db.buckapi.lat:8095/productsInventory/${productId}`;
     return this.http.put<productInterface>(url, product);
 } */
 updateProduct(productId: string, product: productInterface): Observable<any> {
-  const url = `https://db.buckapi.lat:8088/api/collections/productsInventory/records/${productId}`;     
+  const url = `https://db.buckapi.lat:8095/api/collections/productsInventory/records/${productId}`;     
 
     return this.http.patch(url, product).pipe(
     map(response => response)
