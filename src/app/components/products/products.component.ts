@@ -10,12 +10,14 @@ import { NewCategoryModalComponent } from '../new-category-modal/new-category-mo
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { RealtimeVentasService } from '../../services/realtime-ventas.service';
 import { UploadService } from '../../services/upload.service';
-import { from } from 'rxjs';
+import { from, Observable, Subject } from 'rxjs';
 import { BarcodeComponent } from '../barcode/barcode.component';
 import JsBarcode from 'jsbarcode'; // Use default import
 import { ProductService } from '../../services/product.service';
 import PocketBase from 'pocketbase';
 import Compressor from 'compressorjs';
+import { shareReplay, takeUntil } from 'rxjs/operators';
+
 
 
 export interface PocketBaseError {
@@ -29,12 +31,14 @@ export interface Product {
   barcode: string;
   idCategoria: string;
   description: string;
-  unity: number; // Change from string to number
+  unity: number; 
   stock: number;
   color: string;
   files: string[];
   codeBarra: string;
+  file?: string; 
 }
+
 @Component({
   selector: 'app-products',
   standalone: true,
@@ -43,7 +47,7 @@ export interface Product {
     FormsModule,
     ReactiveFormsModule,
     MatDialogModule,
-    BarcodeComponent
+    
   ],
   templateUrl: './products.component.html',
   styleUrl: './products.component.css'
@@ -89,10 +93,14 @@ export class ProductsComponent {
   selectedImagePrev: string = '';
   currentPage: number = 1;
   pageSize: number = 50; // Set your desired page size
-  totalProducts: number = 0;
+/*   totalProducts: number = 0;
+ */  perPage = 50;
+  totalProducts = 0;
+  destroy$ = new Subject<void>();
+  paginatedProducts: any[] = [];
+  showAllProducts = false;
   searchTerm: string = '';
   filteredProducts: Product[] = [];
-
   constructor(
     public global: GlobalService,
     private fb: FormBuilder,
@@ -104,10 +112,6 @@ export class ProductsComponent {
     public uploadService: UploadService,
     public productService: ProductService
   ) {
-  
-  /*   this.realtimeProducts.products$.subscribe((products) => {
-      this.global.productos = products;
-    });*/
     this.pb = new PocketBase(this.apiUrl); 
     this.addProductForm = this.fb.group({
       name: [''],
@@ -125,11 +129,13 @@ export class ProductsComponent {
     this.isEditing = false;    
   }
   ngOnInit() {
+    this.loadProductsCount();
+    this.loadPaginatedProducts();
     this.loadProducts();
     this.global.applyFilters(this.selectedCategory, this.searchQuery); // Initial call to set up default view
 }
   
-    loadProducts() {
+   /*  loadProducts() {
        // Cargar productos inicialmente
       this.productService.getProducts().subscribe(products => {
         this.products = products.map(product => {
@@ -145,23 +151,93 @@ export class ProductsComponent {
           return product;
         });
       }); 
-    } 
+    }  */
+      loadProducts(page: number = 1) {
+        this.realtimeProducts.getPaginatedProducts(page, 50)
+          .subscribe(response => {
+            this.products = response.items;
+            this.totalProducts = response.totalItems;
+          });
+      }
     filterProducts() {
       this.filteredProducts = this.products.filter(product => 
           product.name.toLowerCase().includes(this.searchTerm.toLowerCase())
       );
   }
-    // Implementa la paginación de "Next" y "Previous"
-    nextPage() {
-      if (this.currentPage * this.pageSize < this.totalProducts) {
-        this.currentPage++;
-        this.loadProducts(); // Carga los productos de la siguiente página
-      }
-    }
-    
-    searchTimeout: any; // Declare a timeout variable
+  loadProductsCount() {
+    this.realtimeProducts.getTotalProductsCount().pipe(
+      takeUntil(this.destroy$)
+    ).subscribe(total => {
+      this.totalProducts = total;
+    });
+  }
 
-onSearchChange(event: Event): void {
+  loadPaginatedProducts() {
+    this.realtimeProducts.getPaginatedProducts(this.currentPage, this.perPage).pipe(
+      takeUntil(this.destroy$)
+    ).subscribe((response: { items: Product[] }) => { // Tipar la respuesta
+      this.paginatedProducts = response.items.map((product: Product) => {
+        product.file = this.uploadService.getFileUrl(product);
+        return product;
+      });
+      this.filterProducts();
+    });
+  }
+
+  toggleViewAll() {
+    this.showAllProducts = !this.showAllProducts;
+    if (this.showAllProducts) {
+      // Cargar todos los productos
+      this.realtimeProducts.products$.pipe(
+        takeUntil(this.destroy$)
+      ).subscribe(products => {
+        this.paginatedProducts = products.map(product => {
+          product.file = this.uploadService.getFileUrl(product);
+          return product;
+        });
+        this.filterProducts();
+      });
+    } else {
+      // Volver a la vista paginada
+      this.loadPaginatedProducts();
+    }
+  }
+
+  nextPage() {
+    if (this.currentPage * this.perPage < this.totalProducts) {
+      this.currentPage++;
+      this.loadPaginatedProducts();
+    }
+  }
+
+  prevPage() {
+    if (this.currentPage > 1) {
+      this.currentPage--;
+      this.loadPaginatedProducts();
+    }
+  }
+
+  goToPage(page: number) {
+    this.currentPage = page;
+    this.loadPaginatedProducts();
+  }
+  
+  getPageNumbers(): number[] {
+    const totalPages = Math.ceil(this.totalProducts / this.perPage);
+    const pagesToShow = 5; // Número máximo de páginas a mostrar
+    const startPage = Math.max(1, this.currentPage - Math.floor(pagesToShow / 2));
+    const endPage = Math.min(totalPages, startPage + pagesToShow - 1);
+    
+    const pages = [];
+    for (let i = startPage; i <= endPage; i++) {
+      pages.push(i);
+    }
+    return pages;
+  }
+
+  searchTimeout: any; // Declare a timeout variable
+
+  onSearchChange(event: Event): void {
     const inputElement = event.target as HTMLInputElement;
     const searchTerm = inputElement.value;
     console.log('Término de búsqueda:', searchTerm); // For debugging
@@ -172,12 +248,12 @@ onSearchChange(event: Event): void {
         this.filterProducts(); // Call the filtering method
     }, 300); // Adjust the time as necessary
 }
-    prevPage() {
+    /* prevPage() {
       if (this.currentPage > 1) {
         this.currentPage--;
         this.loadProducts(); // Carga los productos de la página anterior
       }
-    }
+    } */
     
   onFilterChange() {
     this.global.applyFilters(this.selectedCategory, this.searchQuery);

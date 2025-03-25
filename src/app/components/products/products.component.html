@@ -36,6 +36,9 @@
                                 <span class="text-inherit">Vistas </span>
                                 <div class="position-relative">
                                     <div class="flex-align gap-8">
+                                        <button (click)="toggleViewAll()" class="btn btn-outline-main rounded-pill py-9">
+                                            {{ showAllProducts ? 'Ver paginados' : 'Ver todos' }}
+                                          </button>
                                         <button type="button" class="list-view-btn text-gray-200 text-2xl">
                                             <i class="ph ph-rows"></i>
                                         </button>
@@ -62,7 +65,8 @@
                     <div class="grid-view py-20" [hidden]="showForm">
                         <div class="resource-item-wrapper px-24" >
                             <!-- <div class="resource-item" *ngFor="let product of (realtimeProducts.products$ | async); let i = index"> -->
-                                <div class="resource-item" *ngFor="let product of filteredProducts; let i = index">
+                                <!-- <div class="resource-item" *ngFor="let product of filteredProducts; let i = index"> -->
+                                    <div class="resource-item" *ngFor="let product of (showAllProducts ? filteredProducts : paginatedProducts); let i = index">
                                   
                                 <label for="checkbox49" class="">
                                     <div class="dropdown flex-shrink-0">
@@ -319,42 +323,28 @@
                     </form>
                     </div>
                 </div>
-                <div class="card-footer border-top border-gray-100">
+                <div class="card-footer border-top border-gray-100" *ngIf="!showAllProducts">
                     <div class="flex-between flex-wrap gap-8 mt-20">
-                        <a  class="btn btn-outline-gray rounded-pill py-9 flex-align gap-4">
-                            <span class="d-flex text-xl"><i class="ph ph-arrow-left"></i></span> 
-                            Anterior
-                        </a>
-
-                        <ul class="pagination flex-align flex-wrap">
-                            <li class="page-item active">
-                                <a class="page-link h-44 w-44 flex-center text-15 rounded-8 fw-medium" >1</a>
-                            </li>
-                            <li class="page-item">
-                                <a class="page-link h-44 w-44 flex-center text-15 rounded-8 fw-medium" >2</a>
-                            </li>
-                            <li class="page-item">
-                                <a class="page-link h-44 w-44 flex-center text-15 rounded-8 fw-medium" >3</a>
-                            </li>
-                            <li class="page-item">
-                                <a class="page-link h-44 w-44 flex-center text-15 rounded-8 fw-medium" >...</a>
-                            </li>
-                            <li class="page-item">
-                                <a class="page-link h-44 w-44 flex-center text-15 rounded-8 fw-medium" >8</a>
-                            </li>
-                            <li class="page-item">
-                                <a class="page-link h-44 w-44 flex-center text-15 rounded-8 fw-medium" >9</a>
-                            </li>
-                            <li class="page-item">
-                                <a class="page-link h-44 w-44 flex-center text-15 rounded-8 fw-medium" >10</a>
-                            </li>
-                        </ul>
-                        
-                        <a  class="btn btn-main rounded-pill py-9 flex-align gap-4">
-                            Siguiente <span class="d-flex text-xl"><i class="ph ph-arrow-right"></i></span> 
-                        </a>
+                      <button (click)="prevPage()" [disabled]="currentPage === 1" 
+                        class="btn btn-outline-gray rounded-pill py-9 flex-align gap-4">
+                        <span class="d-flex text-xl"><i class="ph ph-arrow-left"></i></span> 
+                        Anterior
+                      </button>
+                  
+                      <ul class="pagination flex-align flex-wrap">
+                        <li *ngFor="let page of getPageNumbers()" class="page-item" [class.active]="page === currentPage">
+                          <button (click)="goToPage(page)" class="page-link h-44 w-44 flex-center text-15 rounded-8 fw-medium">
+                            {{ page }}
+                          </button>
+                        </li>
+                      </ul>
+                      
+                      <button (click)="nextPage()" [disabled]="currentPage * perPage >= totalProducts" 
+                        class="btn btn-main rounded-pill py-9 flex-align gap-4">
+                        Siguiente <span class="d-flex text-xl"><i class="ph ph-arrow-right"></i></span> 
+                      </button>
                     </div>
-                </div>
+                  </div>
                 <div class="floating-button-container" *ngIf="!showForm">
                     <button class="floating-button" (click)="showNewProduct()">
                         +
