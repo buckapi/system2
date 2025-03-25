@@ -127,7 +127,8 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr *ngFor="let product of filteredProducts; let i = index">
+                                    <!-- <tr *ngFor="let product of filteredProducts; let i = index"> -->
+                                        <tr *ngFor="let product of (showAllProducts ? filteredProducts : paginatedProducts); let i = index">
                                         <td class="fixed-width">
                                             <div class="dropdown flex-shrink-0">
                                                 <button class="text-gray-400 text-xl d-flex rounded-4 text-end ms-auto" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="background: #dee2e6;">
