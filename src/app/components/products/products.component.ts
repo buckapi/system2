@@ -152,18 +152,44 @@ export class ProductsComponent {
         });
       }); 
     }  */
-      loadProducts(page: number = 1) {
-        this.realtimeProducts.getPaginatedProducts(page, 50)
+    /*   loadProducts(page: number = 1) {
+        this.realtimeProducts.getPaginatedProducts(page, 1000)
           .subscribe(response => {
             this.products = response.items;
             this.totalProducts = response.totalItems;
           });
+      } */
+      loadProducts() {
+        if (this.showAllProducts) {
+          // Cargar todos los productos
+          this.realtimeProducts.getAllProducts().then(products => {
+            this.products = products.items;
+            this.filterProducts();
+          });
+        } else {
+          // Cargar productos paginados
+          this.realtimeProducts.getPaginatedProducts(this.currentPage, this.perPage)
+            .subscribe(response => {
+              this.paginatedProducts = response.items;
+              this.totalProducts = response.totalItems;
+              this.filterProducts();
+            });
+        }
       }
-    filterProducts() {
+    /* filterProducts() {
       this.filteredProducts = this.products.filter(product => 
           product.name.toLowerCase().includes(this.searchTerm.toLowerCase())
       );
-  }
+  } */
+      filterProducts() {
+        const sourceProducts = this.showAllProducts ? this.products : this.paginatedProducts;
+        
+        this.filteredProducts = sourceProducts.filter(product => 
+          product.name.toLowerCase().includes(this.searchTerm.toLowerCase())
+        );
+        
+        this.matchCount = this.filteredProducts.length;
+      }
   loadProductsCount() {
     this.realtimeProducts.getTotalProductsCount().pipe(
       takeUntil(this.destroy$)
@@ -184,7 +210,7 @@ export class ProductsComponent {
     });
   }
 
-  toggleViewAll() {
+/*   toggleViewAll() {
     this.showAllProducts = !this.showAllProducts;
     if (this.showAllProducts) {
       // Cargar todos los productos
@@ -201,9 +227,12 @@ export class ProductsComponent {
       // Volver a la vista paginada
       this.loadPaginatedProducts();
     }
+  } */
+  toggleViewAll() {
+    this.showAllProducts = !this.showAllProducts;
+    this.loadProducts(); // Recargar productos según el nuevo modo
   }
-
-  nextPage() {
+  /* nextPage() {
     if (this.currentPage * this.perPage < this.totalProducts) {
       this.currentPage++;
       this.loadPaginatedProducts();
@@ -221,7 +250,25 @@ export class ProductsComponent {
     this.currentPage = page;
     this.loadPaginatedProducts();
   }
+   */
+  nextPage() {
+    if (this.currentPage * this.perPage < this.totalProducts) {
+      this.currentPage++;
+      this.loadProducts();
+    }
+  }
   
+  prevPage() {
+    if (this.currentPage > 1) {
+      this.currentPage--;
+      this.loadProducts();
+    }
+  }
+  
+  goToPage(page: number) {
+    this.currentPage = page;
+    this.loadProducts();
+  }
   getPageNumbers(): number[] {
     const totalPages = Math.ceil(this.totalProducts / this.perPage);
     const pagesToShow = 5; // Número máximo de páginas a mostrar

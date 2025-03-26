@@ -41,24 +41,94 @@ export class RealtimeProductsService {
   }
 
   // Método para obtener productos paginados
-  public getPaginatedProducts(page: number = 1, perPage: number = 50): Observable<any> {
+  public getPaginatedProducts(page: number = 1, perPage: number = 100): Observable<any> {
     this.currentPage = page;
     this.perPage = perPage;
     return from(this.pb.collection('productsInventory').getList(page, perPage));
   }
 
   // Método para obtener todos los productos (usado en realtime)
-  private getAllProducts(): Promise<any> {
+/*   private getAllProducts(): Promise<any> {
     if (this.allProductsCache.length > 0) {
       return Promise.resolve({ items: this.allProductsCache });
     }
-    return this.pb.collection('productsInventory').getList(1, 900);
-  }
-  public getTotalProductsCount(): Observable<number> {
+    return this.pb.collection('productsInventory').getList(1, 1000);
+  } */
+ /*  public getTotalProductsCount(): Observable<number> {
     return from(this.pb.collection('productsInventory').getList(1, 1)).pipe(
       map(response => response.totalItems)
     );
-  }
+  } */
+    /* public async getAllProducts(): Promise<any> {
+      if (this.allProductsCache.length > 0) {
+        return { items: this.allProductsCache };
+      }
+      
+      let allItems: any[] = [];
+      let page = 1;
+      const perPage = 500; // Número razonable por página
+      
+      while (true) {
+        const result = await this.pb.collection('productsInventory').getList(page, perPage);
+        allItems = [...allItems, ...result.items];
+        
+        if (result.items.length < perPage) {
+          break; // Hemos llegado al final
+        }
+        
+        page++;
+      }
+      
+      this.allProductsCache = allItems;
+      return { items: allItems };
+    } */
+    public async getAllProducts(): Promise<any> {
+      if (this.allProductsCache.length > 0) {
+        return { items: this.allProductsCache };
+      }
+      
+      let allItems: any[] = [];
+      let page = 1;
+      const perPage = 100;
+      
+      while (true) {
+        const result = await this.pb.collection('productsInventory').getList(page, perPage);
+        allItems = [...allItems, ...result.items];
+        
+        if (result.items.length < perPage) {
+          break;
+        }
+        
+        page++;
+      }
+      
+      this.allProductsCache = allItems;
+      return { items: allItems };
+    }
+  public getTotalProductsCount(): Observable<number> {
+    const totalItemsSubject = new BehaviorSubject<number>(0);
+    let totalItems = 0;
+    let page = 1;
+    const perPage = 1000; // Ajusta esto según sea necesario
+
+    const fetchPage = () => {
+        return from(this.pb.collection('productsInventory').getList(page, perPage)).pipe(
+            map(response => {
+                totalItems += response.totalItems;
+                if (response.items.length > 0) {
+                    page++;
+                    fetchPage(); // Llamar a la siguiente página
+                } else {
+                    totalItemsSubject.next(totalItems);
+                    totalItemsSubject.complete();
+                }
+            })
+        );
+    };
+
+    fetchPage(); // Inicia la primera llamada
+    return totalItemsSubject.asObservable();
+}
 
   // Suscripción a cambios en tiempo real con debounce
   private subscribeToRealtimeChanges(): void {

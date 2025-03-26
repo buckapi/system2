@@ -60,6 +60,7 @@ ventas: any[] = [];
   ventasDelDia: any[] = [];
   totalCuentasPorPagar: number = 0;
   totalCuentasPorCobrar: number = 0;
+  totalProducts: number = 0;
   constructor(
     public global: GlobalService,
     public auth: AuthPocketbaseService,
@@ -76,11 +77,15 @@ ventas: any[] = [];
 
   
   ngOnInit() {
-    // Suscribirse a los cambios en tiempo real de los productos
-    this.realtimeProducts.products$.subscribe(products => {
-      this.products = products;
-    });
-
+    // Para el conteo total
+  this.realtimeProducts.getTotalProductsCount().subscribe(total => {
+    this.totalProducts = total;
+  });
+  
+  // Para la lista de productos (paginada)
+  this.realtimeProducts.products$.subscribe(products => {
+    this.products = products;
+  });
     this.realtimeEmployees.employees$.subscribe(employees => {
       this.employees = employees;
     });
