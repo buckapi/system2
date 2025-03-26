@@ -300,6 +300,8 @@
                                                 <strong>Cliente:</strong>
                                                 <input type="text" class="form-control mt-1" [(ngModel)]="customer"
                                                     name="customer" placeholder="Ingrese el nombre del cliente">
+                                                <input type="text" class="form-control mt-1" [(ngModel)]="customerEmail"
+                                                    name="customerEmail" placeholder="Ingrese el correo del cliente">
                                             </div>
                                             <h3>Método de pago</h3>
                                             <div class="form-group mb-4">
@@ -346,6 +348,9 @@
                                                 <div class="mb-3">
                                                     <strong>Cliente:</strong> {{customer}}
                                                 </div>
+                                                <div class="mb-3">
+                                                    <strong>Correo:</strong> {{customerEmail}}
+                                                </div>  
                                                 <div class="mb-3">
                                                     <strong>Método de pago:</strong> {{metodoPago}}
                                                 </div>
@@ -398,7 +403,8 @@
                                 <div class="col-md-6">
                                     <p><strong>Fecha:</strong> {{selectedSale.date | date:'short'}}</p>
                                     <p><strong>Cliente:</strong> {{selectedSale.customer || 'No especificado'}}</p>
-                                    <p><strong>Empleado:</strong> {{selectedSale.Iduser?.name || 'No especificado'}}</p>
+                                    <p><strong>Correo:</strong> {{selectedSale.customerEmail || 'No especificado'}}</p>
+                                    <!-- <p><strong>Empleado:</strong> {{selectedSale.Iduser?.name || 'No especificado'}}</p> -->
                                 </div>
                                 <div class="col-md-6 text-end">
                                     <p><strong>Total:</strong> ₡ {{selectedSale.total | number:'1.2-2'}}</p>

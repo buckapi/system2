@@ -25,6 +25,7 @@ export interface VentaInterface {
   ventas: any[];
   id: string;
   customer: string;
+  customerEmail: string;
   date: string;
   hora: string;
   metodoPago: string;
@@ -67,6 +68,7 @@ export class CashComponent {
   iva: number = 0;
   total: number = 0;
   customer: string = '';
+  customerEmail: string = '';
   cantidad: number = 0;
   currentUser: any = null;
   pb: any;
@@ -560,6 +562,7 @@ private calculateTotalUnits(): number {
 private resetearVenta() {
   this.productosSeleccionados = [];
   this.customer = '';
+  this.customerEmail = '';
   this.metodoPago = '';
   this.total = 0;
 }
@@ -658,6 +661,7 @@ generatePDF(venta: any) {
       const pdf = new jsPDF('p', 'mm', 'a4');
       pdf.text(`Fecha ${venta.date}`, 10, 10);
       pdf.text(`Factura para ${venta.customer}`, 10, 10);
+      pdf.text(`Correo: ${venta.customerEmail}`, 10, 15);
       pdf.text(`Total: ₡ ${venta.total.toFixed(2)}`, 10, 20);
       pdf.save(`factura-${venta.id}.pdf`);
     }).catch(error => {

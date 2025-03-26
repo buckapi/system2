@@ -48,40 +48,7 @@ export class RealtimeProductsService {
   }
 
   // Método para obtener todos los productos (usado en realtime)
-/*   private getAllProducts(): Promise<any> {
-    if (this.allProductsCache.length > 0) {
-      return Promise.resolve({ items: this.allProductsCache });
-    }
-    return this.pb.collection('productsInventory').getList(1, 1000);
-  } */
- /*  public getTotalProductsCount(): Observable<number> {
-    return from(this.pb.collection('productsInventory').getList(1, 1)).pipe(
-      map(response => response.totalItems)
-    );
-  } */
-    /* public async getAllProducts(): Promise<any> {
-      if (this.allProductsCache.length > 0) {
-        return { items: this.allProductsCache };
-      }
-      
-      let allItems: any[] = [];
-      let page = 1;
-      const perPage = 500; // Número razonable por página
-      
-      while (true) {
-        const result = await this.pb.collection('productsInventory').getList(page, perPage);
-        allItems = [...allItems, ...result.items];
-        
-        if (result.items.length < perPage) {
-          break; // Hemos llegado al final
-        }
-        
-        page++;
-      }
-      
-      this.allProductsCache = allItems;
-      return { items: allItems };
-    } */
+
     public async getAllProducts(): Promise<any> {
       if (this.allProductsCache.length > 0) {
         return { items: this.allProductsCache };
