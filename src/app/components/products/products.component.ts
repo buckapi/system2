@@ -176,6 +176,13 @@ export class ProductsComponent {
               this.filterProducts();
             });
         }
+        // Suscribirse a los cambios en tiempo real
+      this.realtimeProducts.products$.subscribe((products: any[]) => {
+        this.products = products.map(product => {
+          product.file = this.uploadService.getFileUrl(product);
+          return product;
+        });
+      }); 
       }
     /* filterProducts() {
       this.filteredProducts = this.products.filter(product => 
@@ -684,6 +691,13 @@ downloadPdf(barcode: string) {
   const doc = new jsPDF();
   doc.text(`Barcode: ${barcode}`, 10, 10);
   doc.save(`${barcode}.pdf`);
+}
+downloadAllBarcodesPdf() {
+  const doc = new jsPDF();
+  this.products.forEach(product => {
+    doc.text(`${product.name}: ${product.barcode}`, 10, 10 + (this.products.indexOf(product) * 10));
+  });
+  doc.save('barcodes.pdf');
 }
 scrollToProductList() {
   const productListElement = document.querySelector('.list-view');

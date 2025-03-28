@@ -41,7 +41,7 @@ export class RealtimeProductsService {
   }
 
   // Método para obtener productos paginados
-  public getPaginatedProducts(page: number = 1, perPage: number = 100): Observable<any> {
+  public getPaginatedProducts(page: number = 1, perPage: number = 50): Observable<any> {
     this.currentPage = page;
     this.perPage = perPage;
     return from(this.pb.collection('productsInventory').getList(page, perPage));
@@ -56,7 +56,7 @@ export class RealtimeProductsService {
       
       let allItems: any[] = [];
       let page = 1;
-      const perPage = 100;
+      const perPage = 50;
       
       while (true) {
         const result = await this.pb.collection('productsInventory').getList(page, perPage);

@@ -181,11 +181,15 @@
                         </div>
                     </div>
                     <!-- List View End -->
-                   <!--  <div class="list-view" [hidden]="showForm">
+                    <!-- <div class="list-view" [hidden]="showForm">
                         <div *ngFor="let product of products">
+                            <button type="button" (click)="downloadAllBarcodesPdf()">Download All Barcodes PDF</button>    
                             <div>
                                 <span>{{ product.name }}</span>
-                                <button type="button" (click)="downloadPdf(product.barcode)">Download Barcode PDF</button>
+                                <img *ngIf="product.files[0]" src="{{product.files[0]}}" alt="image" style="max-width: 10%; max-width: 200px; height: 200px; border-radius: 10px;">
+                            </div>
+                            <div class="flex-between gap-4 flex-wrap mt-24" *ngIf="product.codeBarra">
+                                <img [src]="product.codeBarra" alt="Código de Barras" class="imgbarcodeImage">
                             </div>
                         </div>
                     </div> -->
