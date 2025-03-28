@@ -17,6 +17,7 @@ import { ProductService } from '../../services/product.service';
 import PocketBase from 'pocketbase';
 import Compressor from 'compressorjs';
 import { shareReplay, takeUntil } from 'rxjs/operators';
+import jsPDF from 'jspdf';
 
 
 
@@ -679,5 +680,15 @@ dataURLtoBlob(dataURL: string): Blob {
   }
   return new Blob([ab], { type: mimeString });
 }
-
+downloadPdf(barcode: string) {
+  const doc = new jsPDF();
+  doc.text(`Barcode: ${barcode}`, 10, 10);
+  doc.save(`${barcode}.pdf`);
+}
+scrollToProductList() {
+  const productListElement = document.querySelector('.list-view');
+  if (productListElement) {
+      productListElement.scrollIntoView({ behavior: 'smooth' });
+  }
+}
 }

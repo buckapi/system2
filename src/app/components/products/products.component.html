@@ -45,6 +45,9 @@
                                         <button type="button" class="grid-view-btn active text-gray-200 text-2xl">
                                             <i class="ph ph-squares-four"></i>
                                         </button>
+                                        <button type="button" class="btn btn-outline-main rounded-pill py-9 text-gray-200 text-2xl">
+                                            <i class="ph ph-clipboard-text"></i>
+                                        </button>
                                     </div>
                                 </div>
                             </div>
@@ -178,6 +181,14 @@
                         </div>
                     </div>
                     <!-- List View End -->
+                    <div class="list-view" [hidden]="showForm">
+                        <div *ngFor="let product of products">
+                            <div>
+                                <span>{{ product.name }}</span>
+                                <button type="button" (click)="downloadPdf(product.barcode)">Download Barcode PDF</button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Formulario de Nuevo producto -->

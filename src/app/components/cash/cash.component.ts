@@ -652,47 +652,227 @@ openSaleDetailsModal(venta: any) {
     modal.show();
   }
 }
+   /* generatePDF(venta: any) {
+        const pdf = new jsPDF({
+          unit: 'mm',
+          format: [80, 297], // 80mm de ancho
+          hotfixes: ['px_scaling']
+        });
+      
+        // Configuración de estilos
+        pdf.setFont('helvetica', 'bold');
+        pdf.setFontSize(12);
+      
+        // Logo (cambia la ruta según tu estructura)
+        const imgData = 'assets/images/logo/logo.png';
+  const logoWidth = 20;
+  const logoHeight = 20;
+  const centeredX = (80 - logoWidth) / 2; // Centrado en 80mm
+  pdf.addImage(imgData, 'PNG', centeredX, 5, logoWidth, logoHeight);
 
-generatePDF(venta: any) {
-  const element = document.getElementById(`invoice-${venta.id}`);
-  console.log('Elemento a capturar:', element); // Verifica si el elemento existe
-  if (element) {
-    html2canvas(element).then(canvas => {
-      const pdf = new jsPDF('p', 'mm', 'a4');
-      pdf.text(`Fecha ${venta.date}`, 10, 10);
-      pdf.text(`Factura para ${venta.customer}`, 10, 10);
-      pdf.text(`Correo: ${venta.customerEmail}`, 10, 15);
-      pdf.text(`Total: ₡ ${venta.total.toFixed(2)}`, 10, 20);
-      pdf.save(`factura-${venta.id}.pdf`);
-    }).catch(error => {
-      console.error('Error al generar el canvas:', error); // Captura errores de html2canvas
-    });
-  } else {
-    console.error('Elemento no encontrado');
-  }
-  
-}
-
-
-
-/*   generatePDF(venta: any) {
-    const element = document.getElementById(`invoice-${venta.id}`);
-    console.log('Elemento a capturar:', element); // Verifica si el elemento existe
-    if (element) {
-      html2canvas(element, { scale: 2 }).then(canvas => {
-        const pdfWidth = 80; // Ancho en mm
-        const pdfHeight = (canvas.height * pdfWidth) / canvas.width; // Altura proporcional
-        const pdf = new jsPDF('p', 'mm', [pdfWidth, pdfHeight]);
-        const imgData = canvas.toDataURL('image/png', 1.0); // Tipo de archivo PNG con calidad máxima
-        pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+      
+        // Encabezado
+        pdf.text('FACTURA', 40, 30, { align: 'center' });
+        pdf.setLineWidth(0.2);
+        pdf.line(10, 35, 70, 35); // Línea divisoria
+      
+        // Información de la factura
+        pdf.setFontSize(9);
+        pdf.setFont('helvetica', 'normal');
+        pdf.text(`Fecha: ${venta.date}`, 5, 40);
+        pdf.text(`Hora: ${new Date().toLocaleTimeString()}`, 5, 45);
+        
+        // Datos del cliente
+        pdf.setFont('helvetica', 'bold');
+        pdf.text('Cliente:', 5, 50);
+        pdf.setFont('helvetica', 'normal');
+        pdf.text(venta.customer, 20, 50);
+        
+        if (venta.customerEmail) {
+          pdf.text('Correo:', 5, 55);
+          pdf.text(venta.customerEmail, 20, 55);
+        }
+        
+        pdf.text('Método de pago:', 5, 60);
+        pdf.text(venta.metodoPago, 30, 60);
+      
+        // Tabla de productos
+        pdf.setFontSize(8);
+        pdf.setFont('helvetica', 'bold');
+        pdf.line(10, 65, 70, 65); // Línea divisoria
+        
+        // Encabezados de tabla
+        pdf.text('Producto', 5, 70);
+        pdf.text('Cant.', 40, 70);
+        pdf.text('Precio', 55, 70);
+        pdf.text('Total', 70, 70, { align: 'right' });
+        
+        pdf.line(10, 72, 70, 72); // Línea divisoria
+        pdf.setFont('helvetica', 'normal');
+      
+        let yPos = 77;
+        // Verificamos y recorremos los productos
+        if (venta.productosSeleccionados && venta.productosSeleccionados.length > 0) {
+          venta.productosSeleccionados.forEach((producto: any) => {
+            // Nombre del producto (con ajuste si es muy largo)
+            const nombre = producto.name.length > 20 ? producto.name.substring(0, 17) + '...' : producto.name;
+            pdf.text(nombre, 5, yPos);
+            
+            // Resto de datos
+            pdf.text(producto.cantidad.toString(), 40, yPos);
+            pdf.text(`₡${producto.price.toFixed(2)}`, 55, yPos);
+            pdf.text(`₡${(producto.price * producto.cantidad).toFixed(2)}`, 70, yPos, { align: 'right' });
+            
+            yPos += 5;
+            
+            // Salto de página si se llega al final
+            if (yPos > 250) {
+              pdf.addPage();
+              yPos = 20;
+            }
+          });
+        } else {
+          pdf.text('No hay productos', 5, yPos);
+          yPos += 5;
+        }
+      
+        // Total
+        pdf.line(10, yPos, 70, yPos);
+        yPos += 5;
+        pdf.setFont('helvetica', 'bold');
+        pdf.text('TOTAL:', 50, yPos);
+        pdf.text(`₡${venta.total.toFixed(2)}`, 70, yPos, { align: 'right' });
+        yPos += 5;
+        pdf.line(10, yPos, 70, yPos);
+      
+        // Pie de página
+        yPos += 10;
+        pdf.setFontSize(8);
+        pdf.text('¡Gracias por su compra!', 40, yPos, { align: 'center' });
+      
+        // Guardar PDF
         pdf.save(`factura-${venta.id}.pdf`);
-      }).catch(error => {
-        console.error('Error al generar el PDF:', error); // Captura errores de html2canvas
-      });
-    } else {
-      console.error('Elemento no encontrado');
-    }
-  } */
-
-
+      } */
+        generatePDF(venta: any) {
+          if (!venta) return;
+        
+          const pdf = new jsPDF({
+            unit: 'mm',
+            format: [80, 297],
+            hotfixes: ['px_scaling']
+          });
+        
+          // Configuración de estilos
+          pdf.setFont('helvetica', 'bold');
+          pdf.setFontSize(12);
+        
+          // Logo (centrado)
+          try {
+            const imgData = 'assets/images/logo/logo.png';
+            const logoWidth = 20;
+            const logoHeight = 20;
+            const centeredX = (80 - logoWidth) / 2;
+            pdf.addImage(imgData, 'PNG', centeredX, 5, logoWidth, logoHeight);
+          } catch (e) {
+            console.log('Logo no encontrado, continuando sin él');
+          }
+        
+          // Encabezado
+          pdf.text('DETALLE DE VENTA', 40, 30, { align: 'center' });
+          pdf.setLineWidth(0.2);
+          pdf.line(10, 35, 70, 35);
+        
+          // Información de la factura
+          pdf.setFontSize(9);
+          pdf.setFont('helvetica', 'normal');
+          pdf.text(`Fecha: ${this.formatDate(venta.date)}`, 5, 40);
+          pdf.text(`Hora: ${this.formatTime(venta.date)}`, 5, 45);
+          
+          // Datos del cliente
+          pdf.setFont('helvetica', 'bold');
+          pdf.text('Cliente:', 5, 50);
+          pdf.setFont('helvetica', 'normal');
+          pdf.text(venta.customer || 'No especificado', 20, 50);
+          
+          if (venta.customerEmail) {
+            pdf.text('Correo:', 5, 55);
+            pdf.text(venta.customerEmail, 20, 55);
+          }
+        
+          // Tabla de productos
+          pdf.setFontSize(8);
+          pdf.setFont('helvetica', 'bold');
+          pdf.line(10, 65, 70, 65);
+          
+          // Encabezados de tabla
+          pdf.text('Producto', 5, 70);
+          pdf.text('Cant.', 40, 70);
+          pdf.text('P.U.', 55, 70);
+          pdf.text('Total', 70, 70, { align: 'right' });
+          
+          pdf.line(10, 72, 70, 72);
+          pdf.setFont('helvetica', 'normal');
+        
+          let yPos = 77;
+          if (venta.idProduct && venta.idProduct.length > 0) {
+            venta.idProduct.forEach((producto: any) => {
+              const nombre = producto.name.length > 20 ? 
+                            producto.name.substring(0, 17) + '...' : 
+                            producto.name;
+              pdf.text(nombre, 5, yPos);
+              
+              pdf.text(venta.unity.toString(), 40, yPos);
+              
+              // VALORES MONETARIOS SIN SÍMBOLO ₡
+              const precioUnitario = this.formatNumber(producto.price);
+              const totalProducto = this.formatNumber(producto.price * venta.unity);
+              
+              pdf.text(precioUnitario, 55, yPos);
+              pdf.text(totalProducto, 70, yPos, { align: 'right' });
+              
+              yPos += 5;
+              
+              if (yPos > 250) {
+                pdf.addPage();
+                yPos = 20;
+              }
+            });
+          } else {
+            pdf.text('No hay productos', 5, yPos);
+            yPos += 5;
+          }
+        
+          // Total sin símbolo ₡
+          pdf.line(10, yPos, 70, yPos);
+          yPos += 5;
+          pdf.setFont('helvetica', 'bold');
+          pdf.text('TOTAL:', 50, yPos);
+          pdf.text(this.formatNumber(venta.total), 70, yPos, { align: 'right' });
+          yPos += 5;
+          pdf.line(10, yPos, 70, yPos);
+        
+          // Pie de página
+          yPos += 10;
+          pdf.setFontSize(8);
+          pdf.text('¡Gracias por su compra!', 40, yPos, { align: 'center' });
+        
+          pdf.save(`venta-${venta.id}.pdf`);
+        }
+        
+        // Método para formato numérico sin símbolo ₡
+        formatNumber(value: number): string {
+  // Redondea al entero más cercano y formatea con separadores de miles
+  return Math.round(value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
+        
+        // Métodos auxiliares para formato de fecha y hora (se mantienen igual)
+        formatDate(dateString: string): string {
+          const date = new Date(dateString);
+          return date.toLocaleDateString('es-ES');
+        }
+        
+        formatTime(dateString: string): string {
+          const date = new Date(dateString);
+          return date.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+        }
+      }
