@@ -576,7 +576,7 @@ export class ProductsComponent {
   async updateProductBarcodes() {
   try {
     // 1. Obtener la lista completa de productos desde PocketBase
-    const products = await this.pb.collection('productsInventory').getFullList(); 
+    const products = await this.pb.collection('productsInventoryDemo').getFullList(); 
 
     for (let product of products) {
       // 2. Generar un código de barras único para cada producto
@@ -590,7 +590,7 @@ export class ProductsComponent {
 
       // 4. Actualizar el producto con el nuevo código de barras usando el método de actualización de PocketBase
       const recordId = product.id; // ID del producto a actualizar
-      const record = await this.pb.collection('productsInventory').update(recordId, updatedProductData);
+      const record = await this.pb.collection('productsInventoryDemo').update(recordId, updatedProductData);
 
       console.log(`Producto ${product.id} actualizado con éxito`, record);
     }
@@ -626,12 +626,12 @@ export class ProductsComponent {
       if (result.isConfirmed) {
         try {
           // Eliminar el producto usando PocketBase
-          await this.pb.collection('productsInventory').delete(productId);
+          await this.pb.collection('productsInventoryDemo').delete(productId);
           
           console.log('Producto eliminado exitosamente:', productId);
           
           // Actualizar la lista de productos
-          this.realtimeProducts.products$ = from(this.pb.collection('productsInventory').getFullList());
+          this.realtimeProducts.products$ = from(this.pb.collection('productsInventoryDemo').getFullList());
           
           // Cancelar la edición si es necesario
           this.cancelEdit();

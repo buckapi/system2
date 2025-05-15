@@ -37,7 +37,7 @@ export class UploadService {
       formData.append('color', productData.color || '');
 
       // Crear el registro
-      const record = await this.pb.collection('productsInventory').create(formData);
+      const record = await this.pb.collection('productsInventoryDemo').create(formData);
 
       return {
         url: this.pb.files.getUrl(record, record['file']),

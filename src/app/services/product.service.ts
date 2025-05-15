@@ -36,14 +36,14 @@ export class ProductService {
   }
 
   /* createProduct(data: Product): Promise<Product> {
-    return this.pb.collection('productsInventory').create(data);
+    return this.pb.collection('productsInventoryDemo').create(data);
   } */
   async createProduct(data: Product): Promise<Product> {
-    return this.pb.collection('productsInventory').create(data);
+    return this.pb.collection('productsInventoryDemo').create(data);
 }
 
  /*  getProducts(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.pb.baseUrl}/productsInventory`);
+    return this.http.get<any[]>(`${this.pb.baseUrl}/productsInventoryDemo`);
   } */
    // Método para obtener productos con paginación
    getProducts(page: number = 1, perPage: number = 1000): Observable<any[]> {
@@ -53,14 +53,14 @@ export class ProductService {
 
     return new Observable(observer => {
       // Realizamos la primera solicitud para obtener el total de productos
-      this.pb.collection('productsInventory').getList(currentPage, perPage).then((firstPage: any) => {
+      this.pb.collection('productsInventoryDemo').getList(currentPage, perPage).then((firstPage: any) => {
         totalProducts = firstPage.totalItems; // Guardamos el total de productos
         allProducts.push(...firstPage.items); // Almacenamos los productos obtenidos en la primera página
 
         // Iteramos sobre las páginas restantes
         while (allProducts.length < totalProducts) {
           currentPage++; // Avanzamos a la siguiente página
-          this.pb.collection('productsInventory').getList(currentPage, perPage).then((pageData: any) => {
+          this.pb.collection('productsInventoryDemo').getList(currentPage, perPage).then((pageData: any) => {
             allProducts.push(...pageData.items); // Agregamos los productos de la página actual
             if (allProducts.length >= totalProducts) {
               observer.next(allProducts); // Cuando hemos obtenido todos los productos, emitimos la respuesta
@@ -76,11 +76,11 @@ export class ProductService {
     });
   }
   getProductById(productId: string): Promise<Product> {
-    return this.pb.collection('productsInventory').getOne(productId);
+    return this.pb.collection('productsInventoryDemo').getOne(productId);
   }
   
   updateProduct(productId: string, data: Product): Promise<Product> {
-    return this.pb.collection('productsInventory').update(productId, data);
+    return this.pb.collection('productsInventoryDemo').update(productId, data);
   }
    
 

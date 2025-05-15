@@ -44,7 +44,7 @@ export class RealtimeProductsService {
   public getPaginatedProducts(page: number = 1, perPage: number = 50): Observable<any> {
     this.currentPage = page;
     this.perPage = perPage;
-    return from(this.pb.collection('productsInventory').getList(page, perPage));
+    return from(this.pb.collection('productsInventoryDemo').getList(page, perPage));
   }
 
   // Método para obtener todos los productos (usado en realtime)
@@ -59,7 +59,7 @@ export class RealtimeProductsService {
       const perPage = 50;
       
       while (true) {
-        const result = await this.pb.collection('productsInventory').getList(page, perPage);
+        const result = await this.pb.collection('productsInventoryDemo').getList(page, perPage);
         allItems = [...allItems, ...result.items];
         
         if (result.items.length < perPage) {
@@ -79,7 +79,7 @@ export class RealtimeProductsService {
     const perPage = 1000; // Ajusta esto según sea necesario
 
     const fetchPage = () => {
-        return from(this.pb.collection('productsInventory').getList(page, perPage)).pipe(
+        return from(this.pb.collection('productsInventoryDemo').getList(page, perPage)).pipe(
             map(response => {
                 totalItems += response.totalItems;
                 if (response.items.length > 0) {
@@ -103,7 +103,7 @@ export class RealtimeProductsService {
       this.allProductsCache = records.items;
       this.productsSubject.next(records.items);
       
-      this.pb.collection('productsInventory').subscribe('*', (e) => {
+      this.pb.collection('productsInventoryDemo').subscribe('*', (e) => {
         // Implementación del debounce manual
         clearTimeout(this.debounceTimer);
         this.debounceTimer = setTimeout(() => {
@@ -140,19 +140,19 @@ export class RealtimeProductsService {
   }
 
   public unsubscribeFromRealtimeChanges(): void {
-    this.pb.collection('productsInventory').unsubscribe('*');
+    this.pb.collection('productsInventoryDemo').unsubscribe('*');
     clearTimeout(this.debounceTimer);
     console.log('Desuscribiéndose de todos los cambios en tiempo real.');
   }
 
   public actualizarStockProducto(productId: string, nuevoStock: number): Observable<any> {
     const body = { stock: nuevoStock };
-    return from(this.pb.collection('productsInventory').update(productId, body));
+    return from(this.pb.collection('productsInventoryDemo').update(productId, body));
   }
 
   public async obtenerStockProducto(productId: string): Promise<number> {
     try {
-      const producto = await this.pb.collection('productsInventory').getOne(productId);
+      const producto = await this.pb.collection('productsInventoryDemo').getOne(productId);
       return producto['unity'];
     } catch (error) {
       console.error('Error al obtener el stock del producto:', error);

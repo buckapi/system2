@@ -61,7 +61,7 @@ export class DataApiService {
   
   
   addProduct(request: productInterface) {
-    const url_api = this.baseUrl + '/collections/productsInventory/records';
+    const url_api = this.baseUrl + '/collections/productsInventoryDemo/records';
 		return this.http.post<productInterface>(url_api, request).pipe(
 		  map(data => data)
 		);
@@ -74,23 +74,23 @@ export class DataApiService {
 	  }
    
   getAllProducts(): Observable<ProductService []> {
-    return this.http.get<ProductService[]>(`${this.baseUrl}/collections/productsInventory/records`);
+    return this.http.get<ProductService[]>(`${this.baseUrl}/collections/productsInventoryDemo/records`);
   }
 /*   updateProduct(id: string, request: productInterface) {
-    const url_api = this.baseUrl + `/collections/productsInventory/records/${id}`;
+    const url_api = this.baseUrl + `/collections/productsInventoryDemo/records/${id}`;
 		return this.http.put<productInterface>(url_api, request).pipe(
 		  map(data => data)
 		);
 	  } */
    /*  updateProduct(productId: string, product: productInterface): Observable<productInterface> {
-      return this.http.put<productInterface>(`https://db.buckapi.lat:8095/productsInventory/${productId}`, product);
+      return this.http.put<productInterface>(`https://db.buckapi.lat:8095/productsInventoryDemo/${productId}`, product);
   } */
   /* updateProduct(productId: string, product: productInterface): Observable<productInterface> {
-    const url = `https://db.buckapi.lat:8095/productsInventory/${productId}`;
+    const url = `https://db.buckapi.lat:8095/productsInventoryDemo/${productId}`;
     return this.http.put<productInterface>(url, product);
 } */
 updateProduct(productId: string, product: productInterface): Observable<any> {
-  const url = `https://db.buckapi.lat:8095/api/collections/productsInventory/records/${productId}`;     
+  const url = `https://db.buckapi.lat:8095/api/collections/productsInventoryDemo/records/${productId}`;     
 
     return this.http.patch(url, product).pipe(
     map(response => response)
@@ -99,7 +99,7 @@ updateProduct(productId: string, product: productInterface): Observable<any> {
   
   
   updateProductStock(productId: string, newStock: number) {
-      const url_api = `${this.baseUrl}/collections/productsInventory/records/${productId}`;
+      const url_api = `${this.baseUrl}/collections/productsInventoryDemo/records/${productId}`;
       const request = { stock: newStock };
       
       return this.http.patch<any>(url_api, request).pipe(
@@ -113,7 +113,7 @@ updateProduct(productId: string, product: productInterface): Observable<any> {
     );
   }
   deleteProduct(productId: string) {
-    const url_api = this.baseUrl + `/collections/productsInventory/records/${productId}`;
+    const url_api = this.baseUrl + `/collections/productsInventoryDemo/records/${productId}`;
     return this.http.delete<productInterface>(url_api).pipe(
       map(data => data)
     );
